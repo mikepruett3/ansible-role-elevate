@@ -18,6 +18,7 @@
 
 - name: "Temporarily remove the pata_acpi kernel module"
   shell: rmmod pata_acpi
+  ignore_errors: true
   when:
     - ansible_distribution_major_version == '7'
 
