@@ -2,5 +2,4 @@
 # tasks file for ansible-role-elevate
 
 - name: "Import Distribution Prerequisites"
-  include_tasks:
-    name: "{{ ansible_facts['distribution'] }}.yaml"
+  include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
