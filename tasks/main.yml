@@ -27,6 +27,15 @@
     name: "{{ leapp_packages }}"
     state: present
 
+- name: "Run a Pre-Upgrade check (its going to fail)"
+  shell: leapp preupgrade
+  ignore_errors: true
+
+- name: "Apply fix for Pre-Upgrade check (CentOS 7)"
+  shell: leapp answer --section remove_pam_pkcs11_module_check.confirm=True
+  when:
+    - ansible_facts['distribution'] == 'CentOS'
+    - ansible_distribution_major_version == '7'
+
 - name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
-
