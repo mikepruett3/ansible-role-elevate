@@ -73,10 +73,10 @@
     name: "*el{{ existing_version }}*"
     state: latest
   register: upgrade
-  when:
-    - ansible_facts['pkg_mgr'] == 'yum'
   vars:
     ansible_python_interpreter: /usr/bin/python3
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
 
 - name: "Remove bootloader entries for Legacy kernels"
   shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
