@@ -3,3 +3,16 @@
 
 - name: "Import Distribution Prerequisites"
   include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
+
+- name: "Upgrade the system (yum)"
+  yum:
+    name: '*'
+    state: latest
+  register: upgrade
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: Reboot if updates were made
+  reboot:
+  when:
+    - upgrade.changed
