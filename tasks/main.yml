@@ -24,6 +24,6 @@
 
 - name: "Install the leapp packages"
   yum:
-    name: "{{ item }}"
+    name: "{{ leapp_packages }}"
     state: present
-  with_items: "{{ leapp_packages }}"
+  #with_items: "{{ leapp_packages }}"
