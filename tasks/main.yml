@@ -4,6 +4,15 @@
 - name: "Import Distribution Prerequisites"
   include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
 
+- name: "Get the major version of the running kernel"
+  shell: uname -r | cut -d. -f1
+  register: kernel
+
+- name: "Set fact about existing Distribution"
+  set_fact:
+    existing_version: "{{ ansible_distribution_major_version }}"
+    existing_kernel_major_version: "{{ kernel.stdout }}"
+
 - name: "Upgrade the system (yum)"
   yum:
     name: '*'
@@ -50,3 +59,19 @@
   when:
     - upgrade.changed
 
+- name: "Remove exclusion from yum configuration file"
+  shell: sed -i '/^exclude=/Id' /etc/yum.conf
+
+- name: "Remove Legacy packages after upgrade (yum)"
+  yum:
+    name: "*el{{ existing_version }}*"
+    state: latest
+  register: upgrade
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Remove bootloader entries for Legacy kernels"
+  shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
+
+- name: "Reboot"
+  reboot:
