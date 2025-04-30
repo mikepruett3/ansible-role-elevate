@@ -15,14 +15,3 @@
     leapp_packages:
       - leapp-upgrade
       - leapp-data-rocky
-
-- name: "Temporarily remove the pata_acpi kernel module"
-  shell: rmmod pata_acpi
-  ignore_errors: true
-  when:
-    - ansible_distribution_major_version == '7'
-
-- name: "Enable root logins in SSH daemon config"
-  shell: echo PermitRootLogin yes | sudo tee -a /etc/ssh/sshd_config
-  when:
-    - ansible_distribution_major_version == '7'
