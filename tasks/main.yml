@@ -29,7 +29,8 @@
 
 - name: "Run a Pre-Upgrade check (its going to fail)"
   shell: leapp preupgrade
-  ignore_errors: true
+  register: preupgrade
+  failed_when: preupgrade.rc >= 2
 
 - name: "Apply fix for Pre-Upgrade check (CentOS 7)"
   shell: leapp answer --section remove_pam_pkcs11_module_check.confirm=True
