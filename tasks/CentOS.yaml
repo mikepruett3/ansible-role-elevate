@@ -17,5 +17,4 @@
       - leapp-data-rocky
 
 - name: "Temporarily remove the pata_acpi kernel module"
-  shell:
-    name: rmmod pata_acpi
+  shell: rmmod pata_acpi
