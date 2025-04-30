@@ -12,7 +12,18 @@
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
-- name: Reboot if updates were made
+- name: "Reboot if packages were upgraded"
   reboot:
   when:
     - upgrade.changed
+
+- name: "Install the ELevate release package"
+  yum:
+    name: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+
+- name: "Install the leapp packages"
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ leapp_packages }}"
