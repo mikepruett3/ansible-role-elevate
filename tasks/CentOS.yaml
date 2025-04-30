@@ -8,5 +8,5 @@
     mode: '0644'
     backup: true
   when:
-    - ansible_facts['distribution']['major_version'] == "7"
+    - ansible_facts['distribution.major_version'] == "7"
 
