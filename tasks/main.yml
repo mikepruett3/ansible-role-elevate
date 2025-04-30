@@ -40,9 +40,13 @@
 
 - name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
-  register: preupgrade
 
 - name: "Perform the upgrade"
   shell: leapp upgrade
+  register: upgrade
+
+- name: "Reboot after the upgrade"
+  reboot:
   when:
-    - preupgrade.changed
+    - upgrade.changed
+
