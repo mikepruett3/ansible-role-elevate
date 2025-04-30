@@ -26,4 +26,5 @@
   yum:
     name: "{{ leapp_packages }}"
     state: present
-  #with_items: "{{ leapp_packages }}"
+
+
