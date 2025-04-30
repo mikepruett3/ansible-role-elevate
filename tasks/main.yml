@@ -27,4 +27,6 @@
     name: "{{ leapp_packages }}"
     state: present
 
+- name: "Run a Pre-Upgrade check"
+  shell: leapp preupgrade
 
