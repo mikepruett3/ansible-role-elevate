@@ -1,2 +1,8 @@
 ---
 # tasks file for ansible-role-elevate
+
+- name: "Check if all hosts was specified with no limit"
+  ansible.builtin.assert:
+    that: ansible_play_hosts_all | length < groups.all | length
+    fail_msg: '[ERROR] All hosts not allowed.'
+  run_once: true
