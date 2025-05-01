@@ -6,11 +6,16 @@
     path: /etc/ssh/sshd_config
     line: 'PermitRootLogin yes'
     state: absent
-  when: not permit_root_login
+  when:
+    - not permit_root_login
+    - ansible_facts['distribution'] == 'CentOS'
+    - ansible_distribution_major_version == '7'
 
 - name: "Revert changes AllowZoneDrifting in firewalld config"
   replace:
     path: /etc/firewalld/firewalld.conf
     regexp: '^AllowZoneDrifting=no\b'
     replace: 'AllowZoneDrifting=yes'
-  when: allow_zone_drifting
+  when:
+    - allow_zone_drifting
+    - ansible_distribution_major_version == '8'
