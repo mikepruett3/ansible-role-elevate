@@ -9,7 +9,7 @@
     existing_distribution: "{{ ansible_facts['distribution'] }}"
     existing_version: "{{ ansible_distribution_version }}"
     existing_major_version: "{{ ansible_distribution_major_version }}"
-    existing_kernel_major_version: "{{ ansible_kernel_version[0] }}"
+    existing_kernel_major_version: "{{ ansible_kernel[0] }}"
 
 - name: "Upgrade the system (yum)"
   yum:
