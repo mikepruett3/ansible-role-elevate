@@ -26,10 +26,10 @@
           os_release_raw.content
           | b64decode
           | splitlines()
-          | select('match', '^[A-Z_]+=.*$')
-          | map('regex_replace', '^([A-Z_]+)=(.*)$', '\\1|\\2')
-          | map('regex_replace', '^"|"$', '')  # strip outer quotes
-          | map('split', '|', 1)
+          | select('match', '^[A-Z_]+=')          # only lines with key=value
+          | map('regex_replace', '^(.+)=(.*)', '\\1=\\2')
+          | map('regex_replace', '^(.+)=["'\'']?(.*?)["'\'']?$', '\\1=\\2')  # remove quotes
+          | map('split', '=', 1)
         )
       }}
 
