@@ -1,0 +1,25 @@
+---
+# PermitRootLogin tasks file for ansible-role-elevate
+
+- name: "Check if PermitRootLogin is allowed in sshd_config"
+  shell: grep -Ei '^PermitRootlogin.*\b' /etc/ssh/sshd_config
+  register: permit_root_login_check
+  failed_when: permit_root_login_check.rc >= 2
+
+- name: "Set fact for PermitRootLogin (True)"
+  set_fact:
+    permit_root_login: true
+  when: permit_root_login_check.rc == 0
+
+- name: "Set fact for PermitRootLogin (False)"
+  set_fact:
+    permit_root_login: false
+  when: permit_root_login_check.rc != 0
+
+- name: "Temporarily enable root logins in SSH daemon config"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: 'PermitRootLogin yes'
+    insertafter: EOF
+    state: present
+  when: not permit_root_login | bool
