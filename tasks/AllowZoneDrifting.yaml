@@ -9,16 +9,20 @@
 - name: "Set fact for AllowZoneDrifting (True)"
   set_fact:
     allow_zone_drifting: true
-  when: allow_zone_drifting_check.rc == 0
+  when:
+    - allow_zone_drifting_check.rc == 0
 
 - name: "Set fact for AllowZoneDrifting (False)"
   set_fact:
     allow_zone_drifting: false
-  when: allow_zone_drifting_check.rc != 0
+  when:
+    - allow_zone_drifting_check.rc != 0
 
 - name: "Temporarily disable AllowZoneDrifting in firewalld config"
   replace:
     path: /etc/firewalld/firewalld.conf
     regexp: '^AllowZoneDrifting=yes\b'
     replace: 'AllowZoneDrifting=no'
-  when: allow_zone_drifting
+  when:
+    - allow_zone_drifting is defined
+    - allow_zone_drifting is true

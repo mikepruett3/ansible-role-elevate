@@ -17,5 +17,5 @@
     regexp: '^AllowZoneDrifting=no\b'
     replace: 'AllowZoneDrifting=yes'
   when:
-    - allow_zone_drifting
-    - ansible_distribution_major_version == '8'
+    - allow_zone_drifting is defined
+    - allow_zone_drifting is true
