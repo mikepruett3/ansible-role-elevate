@@ -14,4 +14,4 @@
   set_fact:
     leapp_packages:
       - leapp-upgrade
-      - leapp-data-almalinux
+      - leapp-data-{{ distro }}
