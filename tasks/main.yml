@@ -71,18 +71,21 @@
   when:
     - upgrade.changed
 
+- name: "Re-Gather facts"
+  gather_facts:
+
 - name: "Remove exclusion from yum configuration file"
   shell: sed -i '/^exclude=/Id' /etc/yum.conf
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
+  #vars:
+  #  ansible_python_interpreter: /usr/bin/python3
 
 - name: "Remove Legacy packages after upgrade (yum)"
   yum:
     name: "*el{{ existing_version }}*"
     state: latest
   register: upgrade
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
+  #vars:
+  #  ansible_python_interpreter: /usr/bin/python3
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
@@ -91,12 +94,12 @@
     name: "*el{{ existing_version }}*"
     state: latest
   register: upgrade
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
+  #vars:
+  #  ansible_python_interpreter: /usr/bin/python3
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Remove bootloader entries for Legacy kernels"
   shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
+  #vars:
+  #  ansible_python_interpreter: /usr/bin/python3
