@@ -11,6 +11,6 @@
 - name: "Revert changes AllowZoneDrifting in firewalld config"
   replace:
     path: /etc/firewalld/firewalld.conf
-    regexp: '^AllowZoneDrifting=.*'
+    regexp: '^AllowZoneDrifting=no\b'
     replace: 'AllowZoneDrifting=yes'
   when: not allow_zone_drifting
