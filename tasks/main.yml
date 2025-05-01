@@ -20,13 +20,21 @@
 
 - name: "Parse /etc/os-release and set facts"
   set_fact:
-    os_release: "{{ dict(os_release_lines | map('split', '=') | map('map', 'trim')) }}"
-  vars:
-    os_release_content: "{{ os_release_raw.content | b64decode }}"
-    os_release_lines: "{{ os_release_content.splitlines() | select('match', '^[A-Z_]+=') | list }}"
+    os_release_facts: >-
+      {{
+        dict(
+          os_release_raw.content
+          | b64decode
+          | splitlines()
+          | select('match', '^[A-Z_]+=.*$')
+          | map('regex_replace', '^([A-Z_]+)=(.*)$', '\\1|\\2')
+          | map('regex_replace', '^"|"$', '')  # strip outer quotes
+          | map('split', '|', 1)
+        )
+      }}
 
 - debug:
-    msg: "OS Name: {{ os_release.PRETTY_NAME }}, Version: {{ os_release.VERSION_ID }}"
+    msg: "OS Name: {{ os_release_facts.PRETTY_NAME }}, Version: {{ os_release_facts.VERSION_ID }}"
 
 - name: "Upgrade the system (yum)"
   yum:
