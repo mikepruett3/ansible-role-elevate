@@ -21,6 +21,14 @@
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
+- name: "Upgrade the system (dnf)"
+  dnf:
+    name: '*'
+    state: latest
+  register: upgrade
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
 - name: "Reboot if packages were upgraded"
   reboot:
   when:
@@ -77,6 +85,16 @@
     ansible_python_interpreter: /usr/bin/python3
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Remove Legacy packages after upgrade (dnf)"
+  dnf:
+    name: "*el{{ existing_version }}*"
+    state: latest
+  register: upgrade
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Remove bootloader entries for Legacy kernels"
   shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
