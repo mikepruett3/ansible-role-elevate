@@ -47,10 +47,14 @@
 - name: "Import Distribution Fixes"
   include_tasks: "{{ ansible_facts['distribution'] }}-Fixes.yaml"
 
-- name: "Run a Pre-Upgrade check (its going to fail)"
+- name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
   register: preupgrade
-  failed_when: preupgrade.rc >= 2
+  failed_when: '"END OF REPORT" not in preupgrade.stdout'
+
+- name: "Build fix command list based on Pre-Upgrade recommendations"
+  shell: cat /var/log/leapp/leapp-report.txt | grep -F [command] | awk '{$1= ""; print $0}'
+  register: fix_commands
 
 - name: "Apply fix for Pre-Upgrade check (CentOS 7)"
   shell: leapp answer --section remove_pam_pkcs11_module_check.confirm=True
@@ -58,8 +62,12 @@
     - ansible_facts['distribution'] == 'CentOS'
     - ansible_distribution_major_version == '7'
 
-- name: "Run a Pre-Upgrade check"
-  shell: leapp preupgrade
+- name: "Run gathered Pre-Upgrade fixes"
+  shell: "{{ item }}"
+  loop: "{{ fix_commands.stdout_lines }}"
+
+#- name: "Run a Pre-Upgrade check"
+#  shell: leapp preupgrade
 
 - name: "Perform the upgrade"
   shell: leapp upgrade
@@ -71,9 +79,8 @@
   when:
     - upgrade.changed
 
-- name: "Re-Gather facts"
-  gather_facts:
-  vars:
+- name: set new python interpreter
+  set_fact:
     ansible_python_interpreter: /usr/bin/python3
 
 - name: "Remove exclusion from yum configuration file"
