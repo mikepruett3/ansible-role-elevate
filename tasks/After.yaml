@@ -13,4 +13,4 @@
     path: /etc/firewalld/firewalld.conf
     regexp: '^AllowZoneDrifting=no\b'
     replace: 'AllowZoneDrifting=yes'
-  when: not allow_zone_drifting
+  when: allow_zone_drifting
