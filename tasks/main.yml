@@ -99,7 +99,7 @@
   dnf:
     name: "{{ item }}"
     state: absent
-  loop: "{{ fix_commands.stdout_lines }}"
+  loop: "{{ packages.stdout_lines }}"
 
 #- name: "Remove bootloader entries for Legacy kernels"
 #  shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
