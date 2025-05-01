@@ -52,11 +52,18 @@
 - name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
   register: preupgrade
-  failed_when: '"END OF REPORT" not in preupgrade.stdout'
+  failed_when: preupgrade.rc >= 2
+  #failed_when: '"END OF REPORT" not in preupgrade.stdout'
+
+- name: "Check if leapp-report.txt exists"
+  stat:
+    path: /var/log/leapp/leapp-report.txt
+  register: file_status
 
 - name: "Build fix command list based on Pre-Upgrade recommendations"
   shell: cat /var/log/leapp/leapp-report.txt | grep -F [command] | awk '{$1= ""; print $0}'
   register: fix_commands
+  when: not file_status.stat.exists or file_status.stat.size == 0
 
 - name: "Run gathered Pre-Upgrade fixes"
   shell: "{{ item }}"
@@ -101,6 +108,9 @@
 #- name: "Remove bootloader entries for Legacy kernels"
 #  shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
 
-#- name: Display before and after versions
-#  ansible.builtin.debug:
-#    msg: "Version before {{ existing_distribution }} {{ existing_version }}.  Version after {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
+- name: "Get Facts after upgrade"
+  get_facts:
+
+- name: Display before and after versions
+  ansible.builtin.debug:
+    msg: "Version before {{ existing_distribution }} {{ existing_version }}.  Version after {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
