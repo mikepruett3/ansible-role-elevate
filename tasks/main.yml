@@ -99,9 +99,6 @@
   set_fact:
     ansible_python_interpreter: /usr/bin/python3
 
-- name: "Get Facts after upgrade"
-  gather_facts:
-
 - name: "Remove exclusion from yum configuration file"
   lineinfile:
     path: /etc/yum.conf
@@ -129,6 +126,9 @@
 
 - name: "Import After upgrade playbook"
   include_tasks: "After.yaml"
+
+- name: "Get Facts after upgrade"
+  gather_facts:
 
 - name: Display before and after versions
   ansible.builtin.debug:
