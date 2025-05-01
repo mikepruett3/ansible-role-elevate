@@ -80,10 +80,18 @@
     ansible_python_interpreter: /usr/bin/python3
 
 - name: "Remove exclusion from yum configuration file (yum)"
-  shell: sed -i '/^exclude=/Id' /etc/yum.conf
+  #shell: sed -i '/^exclude=/Id' /etc/yum.conf
+  lineinfile:
+    path: /etc/yum.conf
+    regexp: '^exclude=.*'
+    state: absent
 
 - name: "Remove exclusion from yum configuration file (dnf)"
-  shell: sed -i '/^exclude=/Id' /etc/dnf/dnf.conf
+  #shell: sed -i '/^exclude=/Id' /etc/dnf/dnf.conf
+  lineinfile:
+    path: /etc/dnf/dnf.conf
+    regexp: '^exclude=.*'
+    state: absent
 
 - name: "Remove Legacy packages after upgrade"
   shell: dnf remove '*el7*' -y
