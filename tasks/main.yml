@@ -4,14 +4,15 @@
 - name: "Import Distribution Prerequisites"
   include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
 
-- name: "Get the major version of the running kernel"
-  shell: uname -r | cut -d. -f1
-  register: kernel
+#- name: "Get the major version of the running kernel"
+#  shell: uname -r | cut -d. -f1
+#  register: kernel
 
 - name: "Set facts about existing Distribution"
   set_fact:
     existing_version: "{{ ansible_distribution_major_version }}"
-    existing_kernel_major_version: "{{ kernel.stdout }}"
+    #existing_kernel_major_version: "{{ kernel.stdout }}"
+    existing_kernel_major_version: "{{ ansible_kernel.split('.')[0] }}"
 
 - name: "Read /etc/os-release into a variable"
   slurp:
