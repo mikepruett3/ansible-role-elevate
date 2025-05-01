@@ -1,0 +1,9 @@
+---
+# After upgrade tasks file for ansible-role-elevate
+
+- name: "Revert changes to root logins in SSH daemon config"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: 'PermitRootLogin yes'
+    state: absent
+  when: not permit_root_login

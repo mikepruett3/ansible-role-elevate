@@ -88,6 +88,9 @@
   set_fact:
     ansible_python_interpreter: /usr/bin/python3
 
+- name: "Get Facts after upgrade"
+  gather_facts:
+
 - name: "Remove exclusion from yum configuration file"
   lineinfile:
     path: /etc/yum.conf
@@ -113,8 +116,8 @@
 #- name: "Remove bootloader entries for Legacy kernels"
 #  shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
 
-- name: "Get Facts after upgrade"
-  gather_facts:
+- name: "Import After upgrade playbook"
+  include_tasks: "After.yaml"
 
 - name: Display before and after versions
   ansible.builtin.debug:
