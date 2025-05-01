@@ -8,10 +8,25 @@
   shell: uname -r | cut -d. -f1
   register: kernel
 
-- name: "Set fact about existing Distribution"
+- name: "Set facts about existing Distribution"
   set_fact:
     existing_version: "{{ ansible_distribution_major_version }}"
     existing_kernel_major_version: "{{ kernel.stdout }}"
+
+- name: "Read /etc/os-release into a variable"
+  slurp:
+    src: /etc/os-release
+  register: os_release_raw
+
+- name: "Parse /etc/os-release and set facts"
+  set_fact:
+    os_release: "{{ dict(os_release_lines | map('split', '=') | map('map', 'trim')) }}"
+  vars:
+    os_release_content: "{{ os_release_raw.content | b64decode }}"
+    os_release_lines: "{{ os_release_content.splitlines() | select('match', '^[A-Z_]+=') | list }}"
+
+- debug:
+    msg: "OS Name: {{ os_release.PRETTY_NAME }}, Version: {{ os_release.VERSION_ID }}"
 
 - name: "Upgrade the system (yum)"
   yum:
