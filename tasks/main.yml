@@ -21,6 +21,11 @@
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
+- name: "Reboot if packages were upgraded (yum)"
+  reboot:
+  when:
+    - upgrade.changed
+
 - name: "Upgrade the system (dnf)"
   dnf:
     name: '*'
@@ -29,7 +34,7 @@
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
-- name: "Reboot if packages were upgraded"
+- name: "Reboot if packages were upgraded (dnf)"
   reboot:
   when:
     - upgrade.changed
@@ -56,15 +61,15 @@
   shell: cat /var/log/leapp/leapp-report.txt | grep -F [command] | awk '{$1= ""; print $0}'
   register: fix_commands
 
-- name: "Apply fix for Pre-Upgrade check (CentOS 7)"
-  shell: leapp answer --section remove_pam_pkcs11_module_check.confirm=True
-  when:
-    - ansible_facts['distribution'] == 'CentOS'
-    - ansible_distribution_major_version == '7'
-
 - name: "Run gathered Pre-Upgrade fixes"
   shell: "{{ item }}"
   loop: "{{ fix_commands.stdout_lines }}"
+
+#- name: "Apply fix for Pre-Upgrade check (CentOS 7)"
+#  shell: leapp answer --section remove_pam_pkcs11_module_check.confirm=True
+#  when:
+#    - ansible_facts['distribution'] == 'CentOS'
+#    - ansible_distribution_major_version == '7'
 
 #- name: "Run a Pre-Upgrade check"
 #  shell: leapp preupgrade
