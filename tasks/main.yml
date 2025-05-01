@@ -49,8 +49,8 @@
     name: "{{ leapp_packages }}"
     state: present
 
-- name: "Import Distribution Fixes"
-  include_tasks: "{{ ansible_facts['distribution'] }}-Fixes.yaml"
+#- name: "Import Distribution Fixes"
+#  include_tasks: "{{ ansible_facts['distribution'] }}-Fixes.yaml"
 
 - name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
