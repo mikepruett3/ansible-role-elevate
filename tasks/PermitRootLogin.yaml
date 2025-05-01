@@ -22,4 +22,4 @@
     line: 'PermitRootLogin yes'
     insertafter: EOF
     state: present
-  when: not permit_root_login | bool
+  when: not permit_root_login
