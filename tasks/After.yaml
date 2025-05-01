@@ -7,3 +7,10 @@
     line: 'PermitRootLogin yes'
     state: absent
   when: not permit_root_login
+
+- name: "Revert changes AllowZoneDrifting in firewalld config"
+  replace:
+    path: /etc/firewalld/firewalld.conf
+    regexp: '^AllowZoneDrifting=.*'
+    replace: 'AllowZoneDrifting=yes'
+  when: not allow_zone_drifting

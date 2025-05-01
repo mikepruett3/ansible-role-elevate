@@ -1,0 +1,24 @@
+---
+# AllowZoneDrifting tasks file for ansible-role-elevate
+
+- name: "Check if AllowZoneDrifting is allowed in firewalld"
+  shell: grep -Ei '^AllowZoneDrifting=.*\b' /etc/firewalld/firewalld.conf
+  register: allow_zone_drifting_check
+  failed_when: allow_zone_drifting_check.rc >= 2
+
+- name: "Set fact for AllowZoneDrifting (True)"
+  set_fact:
+    allow_zone_drifting: true
+  when: allow_zone_drifting_check.rc == 0
+
+- name: "Set fact for AllowZoneDrifting (False)"
+  set_fact:
+    allow_zone_drifting: false
+  when: allow_zone_drifting_check.rc != 0
+
+- name: "Temporarily enable AllowZoneDrifting in firewalld config"
+  replace:
+    path: /etc/firewalld/firewalld.conf
+    regexp: '^AllowZoneDrifting=.*'
+    replace: 'AllowZoneDrifting=no'
+  when: not allow_zone_drifting

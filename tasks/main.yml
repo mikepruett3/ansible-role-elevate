@@ -51,6 +51,17 @@
     name: "leapp-data-{{ distro }}"
     state: present
 
+- name: "Import PermitRootLogin playbook"
+  include_tasks: "PermitRootLogin.yaml"
+  when:
+    - ansible_facts['distribution'] == 'CentOS'
+    - ansible_distribution_major_version == '7'
+
+- name: "Import AllowZoneDrifting playbook"
+  include_tasks: "AllowZoneDrifting.yaml"
+  when:
+    - ansible_distribution_major_version == '8'
+
 - name: "Import Distribution Fixes"
   include_tasks: "Fixes.yaml"
 
