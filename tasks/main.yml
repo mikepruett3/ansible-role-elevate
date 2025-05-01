@@ -6,32 +6,9 @@
 
 - name: "Set facts about existing Distribution"
   set_fact:
-    existing_version: "{{ ansible_distribution_major_version }}"
-
-- debug:
-    msg: "{{ lookup('file', '/etc/os-release') }}"
-
-- name: "Read /etc/os-release into a variable"
-  slurp:
-    src: /etc/os-release
-  register: os_release_raw
-
-- name: "Parse /etc/os-release and set facts"
-  set_fact:
-    os_release_facts: >-
-      {{
-        dict(
-          os_release_raw.content
-          | b64decode
-          | splitlines()
-          | select('match', '^[A-Z_]+=')  # Match key=value lines
-          | map('regex_replace', '^(.+?)=["'\'']?(.*?)["'\'']?$', '\\1=\\2')  # Strip quotes
-          | map('split', '=', 1)
-        )
-      }}
-
-- debug:
-    msg: "OS Name: {{ os_release_facts.PRETTY_NAME }}, Version: {{ os_release_facts.VERSION_ID }}"
+    existing_distribution: "{{ ansible_facts['distribution'] }}"
+    existing_version: "{{ ansible_distribution_version }}"
+    #existing_major_version: "{{ ansible_distribution_major_version }}"
 
 - name: "Upgrade the system (yum)"
   yum:
@@ -95,7 +72,7 @@
   when:
     - upgrade.changed
 
-- name: set new python interpreter
+- name: "Set fact for the new python interpreter"
   set_fact:
     ansible_python_interpreter: /usr/bin/python3
 
@@ -112,7 +89,7 @@
     state: absent
 
 - name: "Collect a list of Legacy packages to remove"
-  shell: sudo rpm -aq | grep el7
+  shell: "rpm -aq | grep el{{ existing_major_version }}"
   register: packages
 
 - name: "Remove Legacy packages after upgrade"
@@ -123,3 +100,7 @@
 
 #- name: "Remove bootloader entries for Legacy kernels"
 #  shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
+
+- name: Display before and after versions
+  ansible.builtin.debug:
+    msg: "Version before {{ existing_distribution }} {{ existing_version }}.  Version after {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
