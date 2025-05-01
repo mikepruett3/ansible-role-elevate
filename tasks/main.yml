@@ -122,8 +122,8 @@
     state: absent
   loop: "{{ packages.stdout_lines }}"
 
-- name: "Remove bootloader entries for Legacy kernels"
-  shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
+#- name: "Remove bootloader entries for Legacy kernels"
+#  shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
 
 - name: "Import After upgrade playbook"
   include_tasks: "After.yaml"
