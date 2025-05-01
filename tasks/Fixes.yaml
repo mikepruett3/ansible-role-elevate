@@ -15,6 +15,9 @@
     - ansible_distribution_major_version == '7'
 
 - name: "Disable AllowZoneDrifting in Firewall Daemon config"
-  shell: echo PermitRootLogin yes | sudo tee -a /etc/ssh/sshd_config
+  replace:
+    path: /etc/firewalld/firewalld.conf
+    regexp: '^AllowZoneDrifting=.*'
+    replace: 'AllowZoneDrifting=no'
   when:
     - ansible_distribution_major_version == '8'
