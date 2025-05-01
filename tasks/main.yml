@@ -65,15 +65,6 @@
   shell: "{{ item }}"
   loop: "{{ fix_commands.stdout_lines }}"
 
-#- name: "Apply fix for Pre-Upgrade check (CentOS 7)"
-#  shell: leapp answer --section remove_pam_pkcs11_module_check.confirm=True
-#  when:
-#    - ansible_facts['distribution'] == 'CentOS'
-#    - ansible_distribution_major_version == '7'
-
-#- name: "Run a Pre-Upgrade check"
-#  shell: leapp preupgrade
-
 - name: "Perform the upgrade"
   shell: leapp upgrade
   register: upgrade
@@ -90,30 +81,12 @@
 
 - name: "Remove exclusion from yum configuration file"
   shell: sed -i '/^exclude=/Id' /etc/yum.conf
-  #vars:
-  #  ansible_python_interpreter: /usr/bin/python3
 
-- name: "Remove Legacy packages after upgrade (yum)"
-  yum:
-    name: "*el{{ existing_version }}*"
-    state: latest
-  register: upgrade
-  #vars:
-  #  ansible_python_interpreter: /usr/bin/python3
-  when:
-    - ansible_facts['pkg_mgr'] == 'yum'
-
-- name: "Remove Legacy packages after upgrade (dnf)"
+- name: "Remove Legacy packages after upgrade"
   dnf:
     name: "*el{{ existing_version }}*"
     state: latest
   register: upgrade
-  #vars:
-  #  ansible_python_interpreter: /usr/bin/python3
-  when:
-    - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Remove bootloader entries for Legacy kernels"
   shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
-  #vars:
-  #  ansible_python_interpreter: /usr/bin/python3
