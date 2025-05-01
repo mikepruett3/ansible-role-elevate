@@ -73,6 +73,8 @@
 
 - name: "Re-Gather facts"
   gather_facts:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: "Remove exclusion from yum configuration file"
   shell: sed -i '/^exclude=/Id' /etc/yum.conf
