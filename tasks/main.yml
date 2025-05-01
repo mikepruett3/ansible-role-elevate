@@ -133,3 +133,6 @@
 - name: Display before and after versions
   ansible.builtin.debug:
     msg: "Version before {{ existing_distribution }} {{ existing_version }}.  Version after {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
+
+- name: "Reboot after playbook run"
+  reboot:
