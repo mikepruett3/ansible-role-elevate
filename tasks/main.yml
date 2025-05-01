@@ -41,9 +41,14 @@
     name: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
     state: present
 
-- name: "Install the leapp packages"
+- name: "Install the leapp upgrade package"
   yum:
-    name: "{{ leapp_packages }}"
+    name: leapp-upgrade
+    state: present
+
+- name: "Install the leapp data package for the specified upgrade distro"
+  yum:
+    name: "leapp-data-{{ distro }}"
     state: present
 
 - name: "Import Distribution Fixes"
@@ -109,7 +114,7 @@
 #  shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
 
 - name: "Get Facts after upgrade"
-  get_facts:
+  gather_facts:
 
 - name: Display before and after versions
   ansible.builtin.debug:
