@@ -9,9 +9,3 @@
     backup: true
   when:
     - ansible_distribution_major_version == '7'
-
-- name: "Set facts for leapp packages"
-  set_fact:
-    leapp_packages:
-      - leapp-upgrade
-      - leapp-data-{{ distro }}
