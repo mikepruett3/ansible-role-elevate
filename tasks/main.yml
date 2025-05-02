@@ -21,7 +21,7 @@
     name: "{{ items }}"
     state: absent
   with_items:
-    - rocky-logos
+    - "rocky-logos"
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
@@ -30,7 +30,7 @@
     name: "{{ items }}"
     state: absent
   with_items:
-    - rocky-logos
+    - "rocky-logos"
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
