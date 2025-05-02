@@ -112,6 +112,7 @@
 - name: "Perform the upgrade"
   shell: leapp upgrade
   register: upgrade
+  failed_when: '"END OF REPORT" not in upgrade.stdout'
 
 - name: "Reboot after the upgrade"
   reboot:
