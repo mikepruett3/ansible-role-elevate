@@ -137,7 +137,6 @@
 - name: "Collect a list of Legacy packages to remove"
   shell: "rpm -aq | grep el{{ existing_major_version }}"
   register: packages
-  warn: false
 
 - name: "Remove Legacy packages after upgrade"
   dnf:
