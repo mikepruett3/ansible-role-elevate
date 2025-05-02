@@ -11,6 +11,29 @@
     existing_major_version: "{{ ansible_distribution_major_version }}"
     existing_kernel_major_version: "{{ ansible_kernel[0] }}"
 
+- name: "Recursively remove any files from the /var/log/leapp directory"
+  ansible.builtin.file:
+    path: /var/log/leapp
+    state: absent
+
+- name: "Remove any left-over packages that cause issues during Distribution upgrade (yum)"
+  yum:
+    name: "{{ items }}"
+    state: absent
+  with_items:
+    - rocky-logos
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Remove any left-over packages that cause issues during Distribution upgrade (dnf)"
+  dnf:
+    name: "{{ items }}"
+    state: absent
+  with_items:
+    - rocky-logos
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
 - name: "Upgrade the system (yum)"
   yum:
     name: '*'
