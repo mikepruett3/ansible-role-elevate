@@ -18,19 +18,19 @@
 
 - name: "Remove any left-over packages that cause issues during Distribution upgrade (yum)"
   yum:
-    name: "{{ items }}"
+    name: "{{ item }}"
     state: absent
   with_items:
-    - "rocky-logos"
+    - rocky-logos
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
 - name: "Remove any left-over packages that cause issues during Distribution upgrade (dnf)"
   dnf:
-    name: "{{ items }}"
+    name: "{{ item }}"
     state: absent
   with_items:
-    - "rocky-logos"
+    - rocky-logos
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
