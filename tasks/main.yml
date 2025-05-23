@@ -142,6 +142,7 @@
   dnf:
     name: "{{ item }}"
     state: absent
+  ignore_errors: true
   loop: "{{ packages.stdout_lines }}"
 
 - name: "Remove bootloader entries for Legacy kernels"
