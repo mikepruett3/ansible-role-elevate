@@ -114,7 +114,7 @@
 
 - name: "Reboot after the upgrade"
   reboot:
-  #  reboot_timeout: 3600
+    reboot_timeout: 7200
   when:
     - upgrade.changed
 
