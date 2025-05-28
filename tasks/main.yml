@@ -90,7 +90,7 @@
   register: preupgrade
   #failed_when: preupgrade.rc >= 2
   failed_when: '"END OF REPORT" not in preupgrade.stdout'
-  no_log: true
+  #no_log: true
 
 - name: "Check if leapp-report.txt exists"
   stat:
