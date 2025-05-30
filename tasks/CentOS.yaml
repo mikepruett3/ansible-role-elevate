@@ -9,3 +9,23 @@
     backup: true
   when:
     - ansible_distribution_major_version == '7'
+
+- name: "Remove packages that will cause issues during Distribution upgrade (yum)"
+  yum:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - javapackages-tools
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Remove packages that will cause issues during Distribution upgrade (dnf)"
+  dnf:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - javapackages-tools
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
