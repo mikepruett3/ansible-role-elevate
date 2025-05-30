@@ -18,14 +18,14 @@
 
 - name: "Remove any left-over packages that cause issues during Distribution upgrade (yum)"
   yum:
-    name: "rocky-logos"
+    name: "{{ distro }}-logos"
     state: absent
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
 - name: "Remove any left-over packages that cause issues during Distribution upgrade (dnf)"
   dnf:
-    name: "rocky-logos"
+    name: "{{ distro }}-logos"
     state: absent
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
@@ -56,25 +56,52 @@
   when:
     - upgrade.changed
 
-- name: "Install the ELevate release package"
+- name: "Install the ELevate release package (yum)"
   yum:
     name: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
     state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
 
-- name: "Install the leapp upgrade package"
+- name: "Install the ELevate release package (dnf)"
+  dnf:
+    name: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: "Install the leapp upgrade package (yum)"
   yum:
     name: leapp-upgrade
     state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
 
-- name: "Install the leapp data package for the specified upgrade distro"
+- name: "Install the leapp upgrade package (dnf)"
+  dnf:
+    name: leapp-upgrade
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: "Install the leapp data package for the specified upgrade distro (yum)"
   yum:
     name: "leapp-data-{{ distro }}"
     state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Install the leapp data package for the specified upgrade distro (dnf)"
+  dnf:
+    name: "leapp-data-{{ distro }}"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Import PermitRootLogin playbook"
   include_tasks: "PermitRootLogin.yaml"
   when:
-    - ansible_facts['distribution'] == 'CentOS'
+    - ansible_facts['os_family'] == 'RedHat'
     - ansible_distribution_major_version == '7'
 
 - name: "Import AllowZoneDrifting playbook"
@@ -88,7 +115,6 @@
 - name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
   register: preupgrade
-  #failed_when: preupgrade.rc >= 2
   failed_when: '"END OF REPORT" not in preupgrade.stdout'
   #no_log: true
 
@@ -121,6 +147,9 @@
 - name: "Set fact for the new python interpreter"
   set_fact:
     ansible_python_interpreter: /usr/bin/python3
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_distribution_major_version == '7'
 
 - name: "Remove exclusion from yum configuration file"
   lineinfile:
