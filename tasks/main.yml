@@ -3,7 +3,7 @@
 
 - name: "Test for DNS resolution"
   assert:
-    that: "{{ 'www.google.com' is ansible.utils.resolvable }}"
+    that: "{{ 'www.google.com' is resolvable }}"
 
 - name: "Import Distribution Prerequisites"
   include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
