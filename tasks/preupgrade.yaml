@@ -47,7 +47,7 @@
 
 - name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
-  #register: preupgrade
+  register: preupgrade
   #failed_when: preupgrade.rc >= 2
-  #failed_when: '"END OF REPORT" not in preupgrade.stdout'
+  failed_when: '"END OF REPORT" not in preupgrade.stdout'
   #no_log: true
