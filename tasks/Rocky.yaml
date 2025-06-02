@@ -2,12 +2,14 @@
 # Rocky Linux tasks file for ansible-role-elevate
 
 - name: "Check for the existence of /etc/sysconfig/network-scripts/ifcfg-eno1"
-  stat:
-    path: /etc/sysconfig/network-scripts/ifcfg-eno1
+  find:
+    path: /etc/sysconfig/network-scripts
+    patterns:
+      - "ifcfg-en*"
   register: ifcfg
 
 - name: "Convert network-scripts to NetworkManager format"
   shell: nmcli connection migrate
   when:
-    - ifcfg.stat.exists
+    - ifcfg.matched != '0'
     - ansible_distribution_major_version == '8'
