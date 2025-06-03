@@ -21,3 +21,18 @@
     - allow_zone_drifting is defined
     - allow_zone_drifting
     #- allow_zone_drifting is true
+
+- name: "Enable legacy_sect provider in /etc/ssl/openssl.cnf"
+  replace:
+    path: /etc/ssl/openssl.cnf
+    regexp: '{{ item.regexp }}'
+    replace: '{{ item.replace }}'
+  loop:
+    - regexp: '^##(legacy.*)'
+      replace: '\1'
+    - regexp: '^##(\[legacy.*)'
+      replace: '\1'
+    - regexp: '^##(activate.*)'
+      replace: '\1'
+  when:
+    - ansible_distribution_major_version == '8'
