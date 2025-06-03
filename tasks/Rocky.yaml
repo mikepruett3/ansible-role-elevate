@@ -24,3 +24,19 @@
   when:
     - ifcfg.matched != '0'
     - ansible_distribution_major_version == '8'
+
+- name: "Copy OpenVPN configs to /etc/openvpn/client directory"
+  copy:
+    src: /etc/openvpn/
+    dest: /etc/openvpn/client/
+  when:
+    - ansible_distribution_major_version == '8'
+
+- name: "Add a Data Cipher to the OpenVPN config"
+  lineinfile:
+    path: /etc/openvpn/client/client.conf
+    line: data-ciphers AES-256-CBC
+    insertafter: EOF
+    state: present
+  when:
+    - ansible_distribution_major_version == '8'
