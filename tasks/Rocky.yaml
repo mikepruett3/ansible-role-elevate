@@ -33,6 +33,16 @@
   when:
     - ansible_distribution_major_version == '8'
 
+- name: "Cleanup OpenVPN config directories"
+  file:
+    src: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/openvpn/client/client
+    - /etc/openvpn/client/server
+  when:
+    - ansible_distribution_major_version == '8'
+
 - name: "Add a Data Cipher to the OpenVPN config"
   lineinfile:
     path: /etc/openvpn/client/client.conf
