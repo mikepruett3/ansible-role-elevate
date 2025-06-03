@@ -58,9 +58,9 @@
     regexp: '{{ item.regexp }}'
     replace: '{{ item.replace }}'
   loop:
-    - regexp: '^##legacy.*'
+    - regexp: '^##(legacy.*)'
       replace: '\1'
-    - regexp: '^##\[legacy.*'
+    - regexp: '^##(\[legacy.*)'
       replace: '\1'
-    - regexp: '^##activate.*'
+    - regexp: '^##(activate.*)'
       replace: '\1'
