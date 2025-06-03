@@ -35,7 +35,7 @@
 
 - name: "Cleanup OpenVPN config directories"
   file:
-    src: "{{ item }}"
+    path: "{{ item }}"
     state: absent
   loop:
     - /etc/openvpn/client/client
