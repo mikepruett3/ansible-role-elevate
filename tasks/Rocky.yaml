@@ -1,6 +1,16 @@
 ---
 # Rocky Linux tasks file for ansible-role-elevate
 
+- name: "Set a fact for a filtered list of interfaces"
+  set_fact:
+    filtered_interfaces: >-
+      {{
+        ansible_interfaces
+        | reject('match', '^lo$')
+        | reject('match', '^tun*')
+        | list
+      }}
+
 - name: "Check for the existence of /etc/sysconfig/network-scripts/ifcfg-eno1"
   find:
     path: /etc/sysconfig/network-scripts
@@ -9,7 +19,8 @@
   register: ifcfg
 
 - name: "Convert network-scripts to NetworkManager format"
-  shell: nmcli connection migrate
+  shell: nmcli connection migrate {{ item }}
+  with_items: "{{ filtered_interfaces }}"
   when:
     - ifcfg.matched != '0'
     - ansible_distribution_major_version == '8'
