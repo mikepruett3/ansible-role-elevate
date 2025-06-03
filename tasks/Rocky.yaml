@@ -29,6 +29,7 @@
   copy:
     src: /etc/openvpn/
     dest: /etc/openvpn/client/
+  remote_src: true
   when:
     - ansible_distribution_major_version == '8'
 
