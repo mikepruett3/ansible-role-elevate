@@ -22,9 +22,9 @@
     - allow_zone_drifting
     #- allow_zone_drifting is true
 
-- name: "Enable legacy_sect provider in /etc/ssl/openssl.cnf"
+- name: "Enable legacy_sect provider in /etc/pki/tls/openssl.cnf"
   replace:
-    path: /etc/ssl/openssl.cnf
+    path: /etc/pki/tls/openssl.cnf
     regexp: '{{ item.regexp }}'
     replace: '{{ item.replace }}'
   loop:
