@@ -166,8 +166,9 @@
     regexp: '^exclude=.*'
     state: absent
 
+  #rpm -qa | grep '\.el8' | sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | sort -u
 - name: "Collect a list of Legacy packages to remove"
-  shell: "rpm -aq | grep el{{ existing_major_version }}"
+  shell: rpm -aq | grep '\.el{{ existing_major_version }}' | sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | sort -u
   register: packages
 
 - name: "Remove Legacy packages after upgrade"
@@ -182,6 +183,13 @@
 
 - name: "Import After upgrade playbook"
   include_tasks: "After.yaml"
+
+- name: "Install newer packages that were previously removed"
+  dnf:
+    name: "{{ item }}"
+    state: present
+  #ignore_errors: true
+  loop: "{{ packages.stdout_lines }}"
 
 - name: "Get Facts after upgrade"
   gather_facts:
