@@ -1,8 +1,8 @@
 ---
 # Pre-Upgrade tasks file for ansible-role-elevate
 
-- name: "Import Distribution Prerequisites"
-  include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
+#- name: "Import Distribution Prerequisites"
+#  include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
 
 - name: "Set facts about existing Distribution"
   set_fact:
