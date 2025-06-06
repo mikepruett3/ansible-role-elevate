@@ -166,17 +166,28 @@
     regexp: '^exclude=.*'
     state: absent
 
-  #rpm -qa | grep '\.el8' | sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | sort -u
 - name: "Collect a list of Legacy packages to remove"
   shell: rpm -aq | grep '\.el{{ existing_major_version }}' | sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | sort -u
   register: packages
+
+- name: "Set fact for list of Legacy packages to remove"
+  set_fact:
+    packages: "{{ packages.stdout_lines }}"
+
+- name: "Collect a list of packages to reinstall after"
+  shell: rpm -aq | grep '\.el{{ existing_major_version }}'  | grep -Ev '^kernel(-|$)' | grep -Ev '^elevate(-|$)' | grep -Ev '^leapp(-|$)' | sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | sort -u
+  register: reinstall
+
+- name: "Set fact for list of packages to reinstall after"
+  set_fact:
+    reinstall: "{{ reinstall.stdout_lines }}"
 
 - name: "Remove Legacy packages after upgrade"
   dnf:
     name: "{{ item }}"
     state: absent
   ignore_errors: true
-  loop: "{{ packages.stdout_lines }}"
+  loop: "{{ packages }}"
 
 - name: "Remove bootloader entries for Legacy kernels"
   shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
@@ -188,8 +199,8 @@
   dnf:
     name: "{{ item }}"
     state: present
-  #ignore_errors: true
-  loop: "{{ packages.stdout_lines }}"
+  ignore_errors: true
+  loop: "{{ reinstall }}"
 
 - name: "Get Facts after upgrade"
   gather_facts:
