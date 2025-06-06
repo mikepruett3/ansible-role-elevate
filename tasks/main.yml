@@ -167,7 +167,11 @@
     state: absent
 
 - name: "Collect a list of Legacy packages to remove"
-  shell: rpm -aq | grep '\.el{{ existing_major_version }}' | sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | sort -u
+  shell: |
+    rpm -aq | \
+    grep '\.el{{ existing_major_version }}' | \
+    sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | \
+    sort -u
   register: packages
 
 - name: "Set fact for list of Legacy packages to remove"
@@ -175,7 +179,16 @@
     packages: "{{ packages.stdout_lines }}"
 
 - name: "Collect a list of packages to reinstall after"
-  shell: rpm -aq | grep '\.el{{ existing_major_version }}'  | grep -Ev '^kernel(-|$)' | grep -Ev '^elevate(-|$)' | grep -Ev '^leapp(-|$)' | sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | sort -u
+  shell: |
+    rpm -aq | \
+    grep '\.el{{ existing_major_version }}' | \
+    grep -Ev '^kernel(-|$)' | \
+    grep -Ev '^elevate(-|$)' | \
+    grep -Ev '^*elevate(-|$)' | \
+    grep -Ev '^leapp(-|$)' | \
+    grep -Ev '^*leapp(-|$)' | \
+    sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | \
+    sort -u
   register: reinstall
 
 - name: "Set fact for list of packages to reinstall after"
