@@ -21,6 +21,7 @@
 - name: "Convert network-scripts to NetworkManager format"
   shell: nmcli connection migrate {{ item }}
   with_items: "{{ filtered_interfaces }}"
+  ignore_errors: true
   when:
     - ifcfg.matched != '0'
     - ansible_distribution_major_version == '8'
