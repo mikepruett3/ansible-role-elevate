@@ -19,7 +19,7 @@
   register: ifcfg
 
 - name: "Convert network-scripts to NetworkManager format"
-  shell: nmcli connection migrate {{ item }}
+  shell: nmcli connection migrate "System {{ item }}"
   with_items: "{{ filtered_interfaces }}"
   ignore_errors: true
   when:
