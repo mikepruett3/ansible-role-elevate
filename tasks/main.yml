@@ -187,6 +187,7 @@
     grep '\.el{{ existing_major_version }}' | \
     grep -Ev '^openvpn(-|$)' | \
     grep -Ev '^pkcs11-helper(-|$)' | \
+    grep -Ev '^kernel(-|$)' | \
     sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | \
     sort -u
   register: packages
@@ -218,6 +219,12 @@
     state: absent
   ignore_errors: true
   loop: "{{ packages }}"
+
+- name: "Remove Legacy Kernel packages after upgrade"
+  dnf:
+    name: "kernel*-{{ existing_major_version }}*"
+  state: absent
+  ignore_errors: true
 
 - name: "Remove bootloader entries for Legacy kernels"
   shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
