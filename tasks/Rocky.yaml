@@ -31,6 +31,7 @@
 - name: "Move any Legacy Interface files that did not get migrated to /root"
   shell: mv "{{ item.path }}" /root/
   loop: "{{ legacy_interfaces.files }}"
+  ignore_errors: true
   when:
     - legacy_interfaces.matched != '0'
     - ansible_distribution_major_version == '8'
