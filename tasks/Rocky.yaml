@@ -44,6 +44,13 @@
   when:
     - ansible_distribution_major_version == '8'
 
+- name: "Create an archive of the OpenVPN configuration files to the root home directory"
+  archive:
+    path: /etc/openvpn/client/
+    dest: /root/openvpn.zip
+    format: zip
+  ignore_errors: true
+
 - name: "Add a Data Cipher to the OpenVPN config"
   lineinfile:
     path: /etc/openvpn/client/client.conf
