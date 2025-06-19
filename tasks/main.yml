@@ -223,7 +223,7 @@
 - name: "Remove Legacy Kernel packages after upgrade"
   dnf:
     name: "kernel*el{{ existing_major_version }}*"
-  state: absent
+    state: absent
   ignore_errors: true
 
 - name: "Remove bootloader entries for Legacy kernels"
