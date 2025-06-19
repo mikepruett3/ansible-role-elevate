@@ -11,19 +11,28 @@
         | list
       }}
 
-- name: "Check for the existence of /etc/sysconfig/network-scripts/ifcfg-eno1"
+- name: "Check for the existence of Legacy Interface files in /etc/sysconfig/network-scripts"
   find:
     path: /etc/sysconfig/network-scripts
     patterns:
       - "ifcfg-en*"
-  register: ifcfg
+    excludes:
+      - ifcfg-lo
+  register: legacy_interfaces
 
 - name: "Convert network-scripts to NetworkManager format"
   shell: nmcli connection migrate "System {{ item }}"
   with_items: "{{ filtered_interfaces }}"
   ignore_errors: true
   when:
-    - ifcfg.matched != '0'
+    - legacy_interfaces.matched != '0'
+    - ansible_distribution_major_version == '8'
+
+- name: "Move any Legacy Interface files that did not get migrated to /root"
+  shell: mv "{{ item.path }}" /root/
+  loop: "{{ legacy_interfaces.files }}"
+  when:
+    - legacy_interfaces.matched != '0'
     - ansible_distribution_major_version == '8'
 
 - name: "Copy OpenVPN configs to /etc/openvpn/client directory"
