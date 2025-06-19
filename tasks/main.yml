@@ -170,6 +170,8 @@
   shell: |
     rpm -aq | \
     grep '\.el{{ existing_major_version }}' | \
+    grep -Ev '^openvpn(-|$)' | \
+    grep -Ev '^pkcs11-helper(-|$)' | \
     sed -E 's/-[0-9][^-]*-[0-9][^-]*\.[^.]+$//' | \
     sort -u
   register: packages
