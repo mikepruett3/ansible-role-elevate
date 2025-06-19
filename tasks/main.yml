@@ -222,7 +222,7 @@
 
 - name: "Remove Legacy Kernel packages after upgrade"
   dnf:
-    name: "kernel*-{{ existing_major_version }}*"
+    name: "kernel*el{{ existing_major_version }}*"
   state: absent
   ignore_errors: true
 
