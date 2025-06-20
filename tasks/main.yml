@@ -200,6 +200,8 @@
   shell: |
     rpm -aq | \
     grep '\.el{{ existing_major_version }}' | \
+    grep -Ev '^openvpn(-|$)' | \
+    grep -Ev '^pkcs11-helper(-|$)' | \
     grep -Ev '^kernel(-|$)' | \
     grep -Ev '^elevate(-|$)' | \
     grep -Ev '^*elevate(-|$)' | \
