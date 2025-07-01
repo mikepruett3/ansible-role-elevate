@@ -1,0 +1,23 @@
+---
+# OpenVPN upgrade tasks file for ansible-role-elevate
+
+- name: "Migrate/Copy OpenVPN configuration files"
+  copy:
+    src: '{{ item }}'
+    dest: /etc/openvpn/client/
+    owner: root
+    group: openvpn
+    mode: '0750'
+    remote_src: yes
+  loop:
+    - /etc/openvpn/*.key
+    - /etc/openvpn/*.p12
+    - /etc/openvpn/*.ovpn
+    - /etc/openvpn/*.conf
+
+- name: "Create an archive of the OpenVPN configuration files to the root home directory"
+  archive:
+    path: /etc/openvpn/client/
+    dest: /root/openvpn.zip
+    format: zip
+  ignore_errors: true
