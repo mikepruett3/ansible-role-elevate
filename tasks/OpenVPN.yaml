@@ -7,7 +7,7 @@
     dest: /etc/openvpn/client/
     remote_src: true
   when:
-    - ansible_distribution_major_version == '8'
+    - existing_major_version == '7'
 
 - name: "Cleanup OpenVPN config directories"
   file:
@@ -16,8 +16,32 @@
   loop:
     - /etc/openvpn/client/client
     - /etc/openvpn/client/server
-  #when:
-  #  - ansible_distribution_major_version == '8'
+  when:
+    - existing_major_version == '7'
+
+- name: "Enable legacy_sect provider in /etc/pki/tls/openssl.cnf"
+  replace:
+    path: /etc/pki/tls/openssl.cnf
+    regexp: '{{ item.regexp }}'
+    replace: '{{ item.replace }}'
+  loop:
+    - regexp: '^##(legacy.*)'
+      replace: '\1'
+    - regexp: '^##(\[legacy.*)'
+      replace: '\1'
+    - regexp: '^##(activate.*)'
+      replace: '\1'
+  when:
+    - existing_major_version == '8'
+
+- name: "Add a Data Cipher to the OpenVPN config"
+  lineinfile:
+    path: /etc/openvpn/client/client.conf
+    line: data-ciphers AES-256-CBC
+    insertafter: EOF
+    state: present
+  when:
+    - existing_major_version == '8'
 
 - name: "Create an archive of the OpenVPN configuration files to the root home directory"
   archive:

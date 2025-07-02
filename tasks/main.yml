@@ -169,6 +169,9 @@
     - ansible_facts['os_family'] == 'RedHat'
     - ansible_distribution_major_version == '7'
 
+- name: "Import OpenVPN playbook"
+  include_tasks: "OpenVPN.yaml"
+
 - name: "Remove exclusion from yum configuration file"
   lineinfile:
     path: /etc/yum.conf
@@ -230,9 +233,6 @@
 
 - name: "Remove bootloader entries for Legacy kernels"
   shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
-
-- name: "Import OpenVPN playbook"
-  include_tasks: "OpenVPN.yaml"
 
 - name: "Import After upgrade playbook"
   include_tasks: "After.yaml"
