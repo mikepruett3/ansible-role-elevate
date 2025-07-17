@@ -25,4 +25,4 @@
     replace: 'AllowZoneDrifting=no'
   when:
     - allow_zone_drifting is defined
-    - allow_zone_drifting is true
+    - allow_zone_drifting
