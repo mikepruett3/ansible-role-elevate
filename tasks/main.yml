@@ -154,7 +154,7 @@
   shell: leapp upgrade
   register: upgrade
   failed_when: '"Upgrade has been inhibited due to the following problems" not in upgrade.stdout'
-  no_log: true
+  #no_log: true
 
 - name: "Import OpenVPN playbook"
   include_tasks: "OpenVPN.yaml"
