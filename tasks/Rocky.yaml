@@ -20,6 +20,7 @@
       - ifcfg-lo
   register: legacy_interfaces
 
+# Fix from - https://access.redhat.com/solutions/7009239
 - name: "Convert network-scripts to NetworkManager format"
   shell: nmcli connection migrate "System {{ item }}"
   with_items: "{{ filtered_interfaces }}"
