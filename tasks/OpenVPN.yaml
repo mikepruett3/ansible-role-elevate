@@ -19,6 +19,25 @@
   when:
     - existing_major_version == '7'
 
+- name: "Find any OpenVPN Certificate and Private Key files in /etc/openvpn/client/"
+  find:
+    paths: /etc/openvpn/client/
+    use_regex: false
+    file_type: file
+  register: files
+  when:
+    - existing_major_version == '7'
+
+- name: "Set permissions on the OpenVPN Certificate and Private Key file"
+  file:
+    path: "{{ item.path }}"
+    mode: '0600'
+    owner: root
+    group: root
+  loop: "{{ files.files }}"
+  when:
+    - existing_major_version == '7'
+
 - name: "Enable legacy_sect provider in /etc/pki/tls/openssl.cnf"
   replace:
     path: /etc/pki/tls/openssl.cnf

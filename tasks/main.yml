@@ -148,6 +148,7 @@
 
 - name: "Run gathered Pre-Upgrade fixes"
   shell: "{{ item }}"
+  warn: false
   loop: "{{ fix_commands.stdout_lines }}"
 
 - name: "Perform the upgrade"
@@ -243,6 +244,17 @@
     state: present
   ignore_errors: true
   loop: "{{ reinstall }}"
+
+- name: "Cleanup remaining leapp_resume Service"
+  service:
+    name: leapp_resume
+    enabled: false
+    state: stopped
+  ignore_errors: true
+
+- name: "Reload systemd daemon"
+  systemd:
+    daemon_reload: true
 
 - name: "Get Facts after upgrade"
   gather_facts:
