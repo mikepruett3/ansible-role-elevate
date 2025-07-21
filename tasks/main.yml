@@ -148,7 +148,7 @@
 
 - name: "Run gathered Pre-Upgrade fixes"
   shell: "{{ item }}"
-  warn: false
+  #warn: false
   loop: "{{ fix_commands.stdout_lines }}"
 
 - name: "Perform the upgrade"
