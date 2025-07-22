@@ -175,6 +175,11 @@
   when:
     - existing_major_version == '7'
 
+- name: "Reboot after the upgrade"
+  reboot:
+  when:
+    - existing_major_version == '7'
+
 - name: "Set fact for the new python interpreter"
   set_fact:
     ansible_python_interpreter: /usr/bin/python3
