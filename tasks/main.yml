@@ -166,6 +166,15 @@
   when:
     - upgrade.changed
 
+- name: "Cleanup legacy OpenVPN client Service"
+  service:
+    name: openvpn@client
+    enabled: false
+    state: stopped
+  ignore_errors: true
+  when:
+    - existing_major_version == '7'
+
 - name: "Set fact for the new python interpreter"
   set_fact:
     ansible_python_interpreter: /usr/bin/python3
