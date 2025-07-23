@@ -166,6 +166,21 @@
   when:
     - upgrade.changed
 
+- name: "Check the current OS Major Version"
+  command: "grep ^VERSION_ID= /etc/os-release"
+  register: os_release
+  changed_when: false
+
+- name: "Extract major version from VERSION_ID"
+  set_fact:
+    actual_os_major_version: "{{ (os_release.stdout | regex_search('[0-9]+')) }}"
+
+- name: "Error (Debug) if OS Major Versions differ"
+  debug:
+    msg: "OS version mismatch! Detected {{ actual_os_major_version }}, expected {{ ansible_distribution_major_version }}"
+  when:
+    - actual_os_major_version != ansible_distribution_major_version
+
 - name: "Cleanup legacy OpenVPN client Service"
   service:
     name: openvpn@client
@@ -174,11 +189,13 @@
   ignore_errors: true
   when:
     - existing_major_version == '7'
+    - actual_os_major_version != ansible_distribution_major_version
 
 - name: "Reboot after the upgrade"
   reboot:
   when:
     - existing_major_version == '7'
+    - actual_os_major_version != ansible_distribution_major_version
 
 - name: "Set fact for the new python interpreter"
   set_fact:
