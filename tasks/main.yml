@@ -175,11 +175,11 @@
   set_fact:
     actual_os_major_version: "{{ (os_release.stdout | regex_search('[0-9]+')) }}"
 
-- name: "Error (Debug) if OS Major Versions differ"
+- name: "Error (Debug) if OS Major Versions match"
   debug:
-    msg: "OS version mismatch! Detected {{ actual_os_major_version }}, expected {{ ansible_distribution_major_version }}"
+    msg: "OS version match! Did upgrade complete?"
   when:
-    - actual_os_major_version != ansible_distribution_major_version
+    - actual_os_major_version == ansible_distribution_major_version
 
 - name: "Cleanup legacy OpenVPN client Service"
   service:
@@ -189,13 +189,13 @@
   ignore_errors: true
   when:
     - existing_major_version == '7'
-    - actual_os_major_version != ansible_distribution_major_version
+    - actual_os_major_version == ansible_distribution_major_version
 
 - name: "Reboot after the upgrade"
   reboot:
   when:
     - existing_major_version == '7'
-    - actual_os_major_version != ansible_distribution_major_version
+    - actual_os_major_version == ansible_distribution_major_version
 
 - name: "Set fact for the new python interpreter"
   set_fact:
