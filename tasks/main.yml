@@ -151,6 +151,11 @@
   #warn: false
   loop: "{{ fix_commands.stdout_lines }}"
 
+- name: "Pause before performing the upgrade"
+  pause:
+    prompt: 'Please confirm you want to continue with the upgrade! Press return to continue. Press Ctrl+c and then "a" to abort'
+    echo: no
+
 - name: "Perform the upgrade"
   shell: leapp upgrade
   register: upgrade
