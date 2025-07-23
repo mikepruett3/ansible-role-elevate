@@ -3,9 +3,20 @@
 
 - name: "Check if machine has functional DNS nameservers"
   shell: ping google.com -c 1
+  register: dns
 
-- name: "Import Distribution Prerequisites"
-  include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
+- name: "Set Fact for missing or unreachable DNS nameserver"
+  set_fact:
+    dns: false
+  when: dns.rc != 0
+
+- name: "Temporarily add Google Public DNS Servers to /etc/resolv.conf"
+  lineinfile:
+    path: /etc/resolv.conf
+    line: nameserver 8.8.8.8
+    insertbefore: BOF
+    state: present
+  when: not dns | bool
 
 - name: "Get disk usage for the / (root) mount point"
   shell: df -BG /
@@ -20,6 +31,9 @@
   fail:
     msg: "Not enough disk space on / (root) mount point. Required: {{ min_free_gb }} GB, Available: {{ free_gb }} GB"
   when: free_gb | int < min_free_gb
+
+- name: "Import Distribution Prerequisites"
+  include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
 
 - name: "Set facts about existing Distribution"
   set_fact:
