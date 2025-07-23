@@ -4,6 +4,7 @@
 - name: "Check if machine has functional DNS nameservers"
   shell: ping google.com -c 1
   register: dns
+  failed_when: dns.rc > 3
 
 - name: "Set Fact for missing or unreachable DNS nameserver"
   set_fact:
