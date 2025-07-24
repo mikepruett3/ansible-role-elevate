@@ -14,7 +14,7 @@
 - name: "Set Fact for missing or unreachable DNS nameserver (true)"
   set_fact:
     functional_dns: true
-  when: functional_dns is undefined
+  when: dns.rc == 1
 
 - name: "Collect existing Name Servers for Management Interface"
   shell: nmcli --terse --fields ipv4.dns connection show "System eno1" | cut -d':' -f2
