@@ -1,23 +1,8 @@
 ---
 # Pre-Upgrade tasks file for ansible-role-elevate
 
-- name: "Check if machine has functional DNS nameservers"
-  shell: ping google.com -c 1
-  register: dns
-  failed_when: dns.rc > 3
-
-- name: "Set Fact for missing or unreachable DNS nameserver"
-  set_fact:
-    dns: false
-  when: dns.rc != 0
-
-- name: "Temporarily add Google Public DNS Servers to /etc/resolv.conf"
-  lineinfile:
-    path: /etc/resolv.conf
-    line: nameserver 8.8.8.8
-    insertbefore: BOF
-    state: present
-  when: not dns | bool
+- name: "Import DNS playbook"
+  include_tasks: "DNS.yaml"
 
 - name: "Get disk usage for the / (root) mount point"
   shell: df -BG /
