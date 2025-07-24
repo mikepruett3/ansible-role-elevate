@@ -2,24 +2,15 @@
 # tasks file for ansible-role-elevate
 
 - name: "Import DNS playbook"
-  include_tasks: "DNS.yaml"
+  include_tasks: "Checks/DNS.yaml"
 
-- name: "Get disk usage for the / (root) mount point"
-  shell: df -BG /
-  register: output
-
-- name: "Parse free disk space in GB"
-  set_fact:
-    free_gb: "{{ output.stdout_lines[1].split()[3] | regex_replace('G','') | int }}"
-    min_free_gb: 50
-
-- name: "Fail if free disk space is below threshold"
-  fail:
-    msg: "Not enough disk space on / (root) mount point. Required: {{ min_free_gb }} GB, Available: {{ free_gb }} GB"
-  when: free_gb | int < min_free_gb
+- name: "Import DiskSpace playbook"
+  include_tasks: "Checks/DiskSpace.yaml"
+  vars:
+    mount-point: "/"
 
 - name: "Import Distribution Prerequisites"
-  include_tasks: "{{ ansible_facts['distribution'] }}.yaml"
+  include_tasks: "Distro/{{ ansible_facts['distribution'] }}.yaml"
 
 - name: "Set facts about existing Distribution"
   set_fact:
