@@ -25,6 +25,6 @@
   shell: nmcli connection modify "System {{ ansible_default_ipv4.interface }}" ipv4.dns 8.8.8.8,{{ nameservers }}
   when: not dns | bool
 
-- name: "Reboot if packages were upgraded (dnf)"
+- name: "Reboot machine"
   reboot:
   when: not dns | bool
