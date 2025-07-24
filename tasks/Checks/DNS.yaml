@@ -2,34 +2,39 @@
 # DNS tasks file for ansible-role-elevate
 
 - name: "Check if machine has functional DNS nameservers"
-  shell: ping google.com -c 1
+  shell: ping -c 1 google.com
   register: dns
-  failed_when: dns.rc > 3
+  ignore_errors: yes
+  changed_when: false
 
-- name: "Set Fact for missing or unreachable DNS nameserver (false)"
+- name: "Set Fact: DNS is functional"
+  set_fact:
+    functional_dns: true
+  when: dns.rc == 0
+
+- name: "Set Fact: DNS is not functional"
   set_fact:
     functional_dns: false
   when: dns.rc != 0
 
-- name: "Set Fact for missing or unreachable DNS nameserver (true)"
-  set_fact:
-    functional_dns: true
-  when: dns.rc == 1
-
 - name: "Collect existing Name Servers for Management Interface"
   shell: nmcli --terse --fields ipv4.dns connection show "System eno1" | cut -d':' -f2
   register: nameservers
-  when: not functional_dns | bool
+  when: not functional_dns
+  changed_when: false
 
 - name: "Set Fact for existing nameservers"
   set_fact:
     nameservers: "{{ nameservers.stdout }}"
-  when: not functional_dns | bool
+  when: not functional_dns
+  changed_when: false
 
 - name: "Temporarily add Google Public DNS Servers to Management Interface nameservers"
   shell: nmcli connection modify "System {{ ansible_default_ipv4.interface }}" ipv4.dns 8.8.8.8,{{ nameservers }}
-  when: not functional_dns | bool
+  when: not functional_dns
+  changed_when: false
 
 - name: "Reboot machine"
   reboot:
-  when: not functional_dns | bool
+  when: not functional_dns
+  changed_when: false
