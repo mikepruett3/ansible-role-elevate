@@ -171,6 +171,13 @@
   when:
     - upgrade.changed
 
+- name: "Set fact for the new python interpreter"
+  set_fact:
+    ansible_python_interpreter: /usr/bin/python3
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_distribution_major_version == '7'
+
 - name: "Check the current OS Major Version"
   command: "grep ^VERSION_ID= /etc/os-release"
   register: os_release
@@ -201,13 +208,6 @@
   when:
     - existing_major_version == '7'
     - actual_os_major_version == ansible_distribution_major_version
-
-- name: "Set fact for the new python interpreter"
-  set_fact:
-    ansible_python_interpreter: /usr/bin/python3
-  when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - ansible_distribution_major_version == '7'
 
 - name: "Remove exclusion from yum configuration file"
   lineinfile:

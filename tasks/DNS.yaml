@@ -11,10 +11,20 @@
     dns: false
   when: dns.rc != 0
 
-- name: "Temporarily add Google Public DNS Servers to /etc/resolv.conf"
-  lineinfile:
-    path: /etc/resolv.conf
-    line: nameserver 8.8.8.8
-    insertbefore: BOF
-    state: present
+- name: "Collect existing Name Servers for Management Interface"
+  shell: nmcli --terse --fields ipv4.dns connection show "System eno1" | cut -d':' -f2
+  register: nameservers
+  when: not dns | bool
+
+- name: "Set Fact for existing nameservers"
+  set_fact:
+    nameservers: "{{ nameservers.stdout }}"
+  when: not dns | bool
+
+- name: "Temporarily add Google Public DNS Servers to Management Interface nameservers"
+  shell: nmcli connection modify "System {{ ansible_default_ipv4.interface }}" ipv4.dns 8.8.8.8,{{ nameservers }}
+  when: not dns | bool
+
+- name: "Reboot if packages were upgraded (dnf)"
+  reboot:
   when: not dns | bool
