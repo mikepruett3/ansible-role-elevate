@@ -1,8 +1,8 @@
 ---
 # Disk Space tasks file for ansible-role-elevate
 
-- name: "Get disk usage for the specified mount point"
-  shell: df -BG {{ mount-point }}
+- name: "Get disk usage for the / (root) mount point"
+  shell: df -BG /
   register: output
 
 - name: "Parse free disk space in GB"
@@ -12,5 +12,5 @@
 
 - name: "Fail if free disk space is below threshold"
   fail:
-    msg: "Not enough disk space on {{ mount-point }} mount point. Required: {{ min_free_gb }} GB, Available: {{ free_gb }} GB"
+    msg: "Not enough disk space on / (root) mount point. Required: {{ min_free_gb }} GB, Available: {{ free_gb }} GB"
   when: free_gb | int < min_free_gb

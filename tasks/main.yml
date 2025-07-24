@@ -6,8 +6,6 @@
 
 - name: "Import DiskSpace playbook"
   include_tasks: "Checks/DiskSpace.yaml"
-  vars:
-    mount-point: "/"
 
 - name: "Import Distribution Prerequisites"
   include_tasks: "Distro/{{ ansible_facts['distribution'] }}.yaml"
