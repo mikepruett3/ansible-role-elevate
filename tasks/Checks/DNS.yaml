@@ -8,28 +8,28 @@
 
 - name: "Set Fact for missing or unreachable DNS nameserver (false)"
   set_fact:
-    dns: false
+    functional_dns: false
   when: dns.rc != 0
 
-- name: "Set Fact for missing or unreachable DNS nameserver"
+- name: "Set Fact for missing or unreachable DNS nameserver (true)"
   set_fact:
-    dns: true
-  when: dns is undefined
+    functional_dns: true
+  when: functional_dns is undefined
 
 - name: "Collect existing Name Servers for Management Interface"
   shell: nmcli --terse --fields ipv4.dns connection show "System eno1" | cut -d':' -f2
   register: nameservers
-  when: not dns | bool
+  when: not functional_dns | bool
 
 - name: "Set Fact for existing nameservers"
   set_fact:
     nameservers: "{{ nameservers.stdout }}"
-  when: not dns | bool
+  when: not functional_dns | bool
 
 - name: "Temporarily add Google Public DNS Servers to Management Interface nameservers"
   shell: nmcli connection modify "System {{ ansible_default_ipv4.interface }}" ipv4.dns 8.8.8.8,{{ nameservers }}
-  when: not dns | bool
+  when: not functional_dns | bool
 
 - name: "Reboot machine"
   reboot:
-  when: not dns | bool
+  when: not functional_dns | bool
