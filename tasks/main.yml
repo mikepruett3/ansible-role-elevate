@@ -180,7 +180,7 @@
   debug:
     msg: "OS version match! Did upgrade complete?"
   when:
-    - actual_os_major_version == ansible_distribution_major_version
+    - actual_os_major_version == existing_major_version
 
 - name: "Cleanup legacy OpenVPN client Service"
   service:
@@ -190,13 +190,13 @@
   ignore_errors: true
   when:
     - existing_major_version == '7'
-    #- actual_os_major_version == ansible_distribution_major_version
+    - actual_os_major_version != existing_major_version
 
 - name: "Reboot after the upgrade"
   reboot:
   when:
     - existing_major_version == '7'
-    #- actual_os_major_version == ansible_distribution_major_version
+    - actual_os_major_version != existing_major_version
 
 - name: "Remove exclusion from yum configuration file"
   lineinfile:
@@ -284,9 +284,9 @@
 - name: "Get Facts after upgrade"
   gather_facts:
 
-- name: Display before and after versions
-  ansible.builtin.debug:
-    msg: "Version before {{ existing_distribution }} {{ existing_version }}.  Version after {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
+#- name: Display before and after versions
+#  ansible.builtin.debug:
+#    msg: "Version before {{ existing_distribution }} {{ existing_version }}.  Version after {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
 
 - name: "Reboot after playbook run"
   reboot:
