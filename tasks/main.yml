@@ -186,7 +186,7 @@
   service:
     name: openvpn@client
     enabled: false
-    state: stopped
+    #state: stopped
   ignore_errors: true
   when:
     - existing_major_version == '7'
