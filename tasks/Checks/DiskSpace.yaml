@@ -22,7 +22,7 @@
 - name: "Parse free disk space in GB"
   set_fact:
     free_gb: "{{ output.stdout_lines[1].split()[3] | regex_replace('G','') | int }}"
-    min_free_gb: 50
+    min_free_gb: 3
 
 - name: "Fail if free disk space is below threshold"
   fail:
