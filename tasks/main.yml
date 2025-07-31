@@ -192,7 +192,7 @@
     - existing_major_version == '7'
     - actual_os_major_version != existing_major_version
 
-- name: "Reboot after the upgrade"
+- name: "Reboot after cleanup of OpenVPN configs"
   reboot:
   when:
     - existing_major_version == '7'
