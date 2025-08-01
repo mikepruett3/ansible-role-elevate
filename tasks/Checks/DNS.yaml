@@ -17,8 +17,16 @@
     functional_dns: false
   when: dns.rc != 0
 
+- name: "Collect Device Name of the Management Interface"
+  shell: nmcli -t -f NAME connection show --active | grep -i 'eno1'
+  register: device
+
+- name: "Set Fact for Management Interface Device Name"
+  set_fact:
+    device_name: "{{ device.stdout }}"
+
 - name: "Collect existing Name Servers for Management Interface"
-  shell: nmcli --terse --fields ipv4.dns connection show "System eno1" | cut -d':' -f2
+  shell: nmcli --terse --fields ipv4.dns connection show "{{ device_name }}" | cut -d':' -f2
   register: nameservers
   when: not functional_dns
   changed_when: false
