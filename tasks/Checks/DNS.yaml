@@ -20,10 +20,12 @@
 - name: "Collect Device Name of the Management Interface"
   shell: nmcli -t -f NAME connection show --active | grep -i 'eno1'
   register: device
+  when: not functional_dns
 
 - name: "Set Fact for Management Interface Device Name"
   set_fact:
     device_name: "{{ device.stdout }}"
+  when: not functional_dns
 
 - name: "Collect existing Name Servers for Management Interface"
   shell: nmcli --terse --fields ipv4.dns connection show "{{ device_name }}" | cut -d':' -f2
@@ -38,7 +40,7 @@
   changed_when: false
 
 - name: "Temporarily add Google Public DNS Servers to Management Interface nameservers"
-  shell: nmcli connection modify "System {{ ansible_default_ipv4.interface }}" ipv4.dns 8.8.8.8,{{ nameservers }}
+  shell: nmcli connection modify "{{ device_name }}" ipv4.dns 8.8.8.8,{{ nameservers }}
   when: not functional_dns
   changed_when: false
 
