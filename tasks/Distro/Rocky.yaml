@@ -1,29 +1,30 @@
 ---
 # Rocky Linux tasks file for ansible-role-elevate
 
-- name: "Set a fact for a filtered list of interfaces"
-  set_fact:
-    filtered_interfaces: >-
-      {{
-        ansible_interfaces
-        | reject('match', '^lo$')
-        | reject('match', '^tun*')
-        | list
-      }}
+#- name: "Set a fact for a filtered list of interfaces"
+#  set_fact:
+#    filtered_interfaces: >-
+#      {{
+#        ansible_interfaces
+#        | reject('match', '^lo$')
+#        | reject('match', '^tun*')
+#        | list
+#      }}
 
 - name: "Check for the existence of Legacy Interface files in /etc/sysconfig/network-scripts"
   find:
     path: /etc/sysconfig/network-scripts
     patterns:
-      - "ifcfg-en*"
+      - "ifcfg-e*"
     excludes:
       - ifcfg-lo
   register: legacy_interfaces
 
 # Fix from - https://access.redhat.com/solutions/7009239
 - name: "Convert network-scripts to NetworkManager format"
-  shell: nmcli connection migrate "System {{ item }}"
-  with_items: "{{ filtered_interfaces }}"
+  shell: nmcli connection migrate "{{ item.path }}"
+  #with_items: "{{ filtered_interfaces }}"
+  loop: "{{ legacy_interfaces.files }}"
   ignore_errors: true
   when:
     - legacy_interfaces.matched != '0'
