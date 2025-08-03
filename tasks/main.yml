@@ -198,11 +198,11 @@
     - existing_major_version == '7'
     - actual_os_major_version != existing_major_version
 
-- name: "Remove exclusion from yum configuration file"
-  lineinfile:
-    path: /etc/yum.conf
-    regexp: '^exclude=.*'
-    state: absent
+#- name: "Remove exclusion from yum configuration file"
+#  lineinfile:
+#    path: /etc/yum.conf
+#    regexp: '^exclude=.*'
+#    state: absent
 
 - name: "Remove exclusion from dnf configuration file"
   lineinfile:
