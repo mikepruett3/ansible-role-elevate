@@ -21,3 +21,30 @@
     - allow_zone_drifting is defined
     - allow_zone_drifting
     #- allow_zone_drifting is true
+
+- name: "Check current python alternative"
+  command: alternatives --display python
+  register: python_alternatives
+  failed_when: false
+  changed_when: false
+
+- name: Determine if python alternative is set to /usr/libexec/no-python
+  set_fact:
+    python_is_bad: true
+  when: '"link currently points to /usr/libexec/no-python" in python_alternatives.stdout'
+
+- name: "Check if python3 binary exists"
+  stat:
+    path: "{{ ansible_python_interpreter }}"
+  register: python3
+  when:
+    - python_is_bad
+
+- name: "Update python alternative to use /usr/bin/python3"
+  alternatives:
+    name: python
+    path: "{{ ansible_python_interpreter }}"
+  when:
+    - python_is_bad
+    - python3.stat.exists
+    - python3.stat.executable
