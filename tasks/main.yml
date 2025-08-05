@@ -46,6 +46,7 @@
 
 - name: "Reboot if packages were upgraded (yum)"
   reboot:
+    reboot_timeout: 14400
   when:
     - upgrade.changed
 
@@ -59,6 +60,7 @@
 
 - name: "Reboot if packages were upgraded (dnf)"
   reboot:
+    reboot_timeout: 14400
   when:
     - upgrade.changed
     - ansible_distribution_major_version != '8'
@@ -195,6 +197,7 @@
 
 - name: "Reboot after cleanup of OpenVPN configs"
   reboot:
+    reboot_timeout: 14400
   when:
     - existing_major_version == '7'
     - actual_os_major_version != existing_major_version
@@ -289,3 +292,4 @@
 
 - name: "Reboot after playbook run"
   reboot:
+    reboot_timeout: 14400
