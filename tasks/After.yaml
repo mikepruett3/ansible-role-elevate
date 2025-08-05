@@ -27,6 +27,8 @@
   register: python_alternatives
   failed_when: false
   changed_when: false
+  when:
+    - ansible_distribution_major_version == '7'
 
 - name: Determine if python alternative is set to /usr/libexec/no-python
   set_fact:
@@ -38,13 +40,15 @@
     path: "{{ ansible_python_interpreter }}"
   register: python3
   when:
-    - python_is_bad
+    - python_is_bad exists
+    - python_is_bad | bool
 
 - name: "Update python alternative to use /usr/bin/python3"
   alternatives:
     name: python
     path: "{{ ansible_python_interpreter }}"
   when:
-    - python_is_bad
+    - python_is_bad exists
+    - python_is_bad | bool
     - python3.stat.exists
     - python3.stat.executable
