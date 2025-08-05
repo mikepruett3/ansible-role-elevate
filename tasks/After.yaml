@@ -33,13 +33,16 @@
 - name: Determine if python alternative is set to /usr/libexec/no-python
   set_fact:
     python_is_bad: true
-  when: '"link currently points to /usr/libexec/no-python" in python_alternatives.stdout'
+  when:
+    - ansible_distribution_major_version == '7'
+    - '"link currently points to /usr/libexec/no-python" in python_alternatives.stdout'
 
 - name: "Check if python3 binary exists"
   stat:
     path: "{{ ansible_python_interpreter }}"
   register: python3
   when:
+    - ansible_distribution_major_version == '7'
     - python_is_bad exists
     - python_is_bad | bool
 
@@ -48,6 +51,7 @@
     name: python
     path: "{{ ansible_python_interpreter }}"
   when:
+    - ansible_distribution_major_version == '7'
     - python_is_bad exists
     - python_is_bad | bool
     - python3.stat.exists
