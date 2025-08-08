@@ -154,6 +154,11 @@
   failed_when: '"Upgrade has been inhibited due to the following problems" in upgrade.stdout'
   #no_log: true
 
+- name: "Check if upgrade was successful"
+  shell: grubby --default-title
+  register: grubby
+  failed_when: '"ELevate-Upgrade-Initramfs" not in grubby.stdout'
+
 - name: "Import OpenVPN playbook"
   include_tasks: "OpenVPN.yaml"
 
