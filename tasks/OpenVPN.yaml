@@ -1,12 +1,27 @@
 ---
 # OpenVPN upgrade tasks file for ansible-role-elevate
 
+- name: "Collect version of currently installed OpenVPN client"
+  shell: openvpn --version | head -n 1 | awk '{ print $2 }'
+  register: output
+  failed_when: output.rc != 0
+  changed_when: false
+
+- name: "Set fact for installed OpenVPN version"
+  set_fact:
+    openvpn_installed: true
+    openvpn_version: "{{ output.stdout }}"
+    new_version: "2.5.11"
+  when:
+    output.rc == 0
+
 - name: "Copy OpenVPN configs to /etc/openvpn/client directory"
   copy:
     src: /etc/openvpn/
     dest: /etc/openvpn/client/
     remote_src: true
   when:
+    - openvpn | bool
     - existing_major_version == '7'
 
 - name: "Cleanup OpenVPN config directories"
@@ -17,6 +32,7 @@
     - /etc/openvpn/client/client
     - /etc/openvpn/client/server
   when:
+    - openvpn | bool
     - existing_major_version == '7'
 
 - name: "Find any OpenVPN Certificate and Private Key files in /etc/openvpn/client/"
@@ -26,6 +42,7 @@
     file_type: file
   register: files
   when:
+    - openvpn | bool
     - existing_major_version == '7'
 
 - name: "Set permissions on the OpenVPN Certificate and Private Key file"
@@ -36,6 +53,7 @@
     group: root
   loop: "{{ files.files }}"
   when:
+    - openvpn | bool
     - existing_major_version == '7'
 
 # Fix from - https://unix.stackexchange.com/questions/742929/openvpn-private-key-password-being-requested
@@ -52,6 +70,7 @@
     - regexp: '^##(activate.*)'
       replace: '\1'
   when:
+    - openvpn | bool
     - existing_major_version == '8'
 
 # Fix from - https://www.reddit.com/r/PrivateInternetAccess/comments/j1iyl7/openvpn_client_no_longer_connects_cipher_not/
@@ -62,6 +81,8 @@
     insertafter: EOF
     state: present
   when:
+    - openvpn | bool
+    - new_version is version(openvpn_version, '>=')
     - existing_major_version == '8'
 
 - name: "Create an archive of the OpenVPN configuration files to the root home directory"
@@ -70,3 +91,5 @@
     dest: /root/openvpn.zip
     format: zip
   ignore_errors: true
+  when:
+    - openvpn | bool
