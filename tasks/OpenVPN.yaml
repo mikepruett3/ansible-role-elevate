@@ -21,7 +21,7 @@
     dest: /etc/openvpn/client/
     remote_src: true
   when:
-    - openvpn | bool
+    - openvpn
     - existing_major_version == '7'
 
 - name: "Cleanup OpenVPN config directories"
@@ -32,7 +32,7 @@
     - /etc/openvpn/client/client
     - /etc/openvpn/client/server
   when:
-    - openvpn | bool
+    - openvpn
     - existing_major_version == '7'
 
 - name: "Find any OpenVPN Certificate and Private Key files in /etc/openvpn/client/"
@@ -42,7 +42,7 @@
     file_type: file
   register: files
   when:
-    - openvpn | bool
+    - openvpn
     - existing_major_version == '7'
 
 - name: "Set permissions on the OpenVPN Certificate and Private Key file"
@@ -53,7 +53,7 @@
     group: root
   loop: "{{ files.files }}"
   when:
-    - openvpn | bool
+    - openvpn
     - existing_major_version == '7'
 
 # Fix from - https://unix.stackexchange.com/questions/742929/openvpn-private-key-password-being-requested
@@ -70,7 +70,7 @@
     - regexp: '^##(activate.*)'
       replace: '\1'
   when:
-    - openvpn | bool
+    - openvpn
     - existing_major_version == '8'
 
 # Fix from - https://www.reddit.com/r/PrivateInternetAccess/comments/j1iyl7/openvpn_client_no_longer_connects_cipher_not/
@@ -81,7 +81,7 @@
     insertafter: EOF
     state: present
   when:
-    - openvpn | bool
+    - openvpn
     - new_version is version(openvpn_version, '>=')
     - existing_major_version == '8'
 
@@ -92,4 +92,4 @@
     format: zip
   ignore_errors: true
   when:
-    - openvpn | bool
+    - openvpn
