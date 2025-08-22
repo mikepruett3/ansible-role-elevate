@@ -11,6 +11,7 @@
     - ansible_facts['os_family'] == 'RedHat'
     - ansible_distribution_major_version == '7'
 
+# https://access.redhat.com/solutions/7020130
 - name: "Check for mounted btrfs filesystems in /proc/mounts"
   command: cat /proc/mounts | grep -i btrfs
   register: btrfs_mounts_proc
