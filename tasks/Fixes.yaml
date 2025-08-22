@@ -10,3 +10,45 @@
   when:
     - ansible_facts['os_family'] == 'RedHat'
     - ansible_distribution_major_version == '7'
+
+- name: "Check for mounted btrfs filesystems in /proc/mounts"
+  command: cat /proc/mounts | grep -i btrfs
+  register: btrfs_mounts_proc
+  ignore_errors: yes
+
+- name: "Set fact for found btrfs filesystems in /proc/mounts"
+  set_fact:
+    btrfs_proc: true
+  when:
+    - btrfs_mounts_proc.rc == 0 or btrfs_mounts_proc.stdout != ""
+
+- name: "Debug mounted btrfs filesystems in /proc/mounts"
+  fail:
+    msg: "Mounted btrfs filesystems: {{ btrfs_mounts_proc.stdout_lines }}"
+  when:
+    - btrfs_mounts_proc.rc == 0 or btrfs_mounts_proc.stdout != ""
+
+- name: "Check for mounted btrfs filesystems with findmnt"
+  command: findmnt | grep -i btrfs
+  register: btrfs_mounts_findmnt
+  ignore_errors: yes
+
+- name: "Set fact for found btrfs filesystems with findmnt"
+  set_fact:
+    btrfs_findmnt: true
+  when:
+    - btrfs_mounts_findmnt.rc == 0 or btrfs_mounts_findmnt.stdout != ""
+
+- name: "Debug mounted btrfs filesystems with findmnt"
+  fail:
+    msg: "Mounted btrfs filesystems: {{ btrfs_mounts_findmnt.stdout_lines }}"
+  when:
+    - btrfs_mounts_findmnt.rc == 0 or btrfs_mounts_findmnt.stdout != ""
+
+- name: Remove btrfs-progs if no btrfs mounts found
+  package:
+    name: btrfs-progs
+    state: absent
+  when:
+    - btrfs_proc is not defined or not btrfs_proc
+    - btrfs_findmnt is not defined or not btrfs_findmnt
