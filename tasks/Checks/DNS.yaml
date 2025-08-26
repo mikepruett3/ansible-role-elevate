@@ -2,7 +2,7 @@
 # DNS tasks file for ansible-role-elevate
 
 - name: "Check if machine has functional DNS nameservers"
-  shell: ping -c 1 google.com
+  shell: ping -4 -c 1 google.com
   register: dns
   ignore_errors: yes
   changed_when: false
