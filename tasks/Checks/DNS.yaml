@@ -46,5 +46,6 @@
 
 - name: "Reboot machine"
   reboot:
+    reboot_timeout: 14400
   when: not functional_dns
   changed_when: false
