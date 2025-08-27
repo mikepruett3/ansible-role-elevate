@@ -32,8 +32,8 @@
 - name: "Disable sslverify in {{ config_file }}"
   lineinfile:
     path: "{{ config_file }}"
-    line: 'sslverify=0'
-    insertafter: '[main]'
+    line: "sslverify=0"
+    insertafter: "[main]"
     state: present
   when:
     - sslverify_value is defined
@@ -42,9 +42,9 @@
 - name: "Disable sslverify if setting is present in {{ config_file }}"
   lineinfile:
     path: "{{ config_file }}"
-    regexp: '^sslverify='
-    line: 'sslverify=0'
-    insertafter: '[main]'
+    regexp: "^sslverify="
+    line: "sslverify=0"
+    insertafter: "[main]"
     state: present
     backrefs: yes
   when:
