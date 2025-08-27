@@ -31,6 +31,28 @@
   when:
     - ansible_distribution_major_version == '8'
 
+- name: "Remove sslverify in {{ config_file }}"
+  lineinfile:
+    path: "{{ config_file }}"
+    line: 'sslverify=0'
+    state: absent
+  when:
+    - sslverify_value is defined
+    - sslverify_value == "not_set"
+
+- name: "Re-Enable sslverify if setting was present in {{ config_file }}"
+  lineinfile:
+    path: "{{ config_file }}"
+    regexp: '^sslverify='
+    line: 'sslverify=1'
+    insertafter: '[main]'
+    state: present
+    backrefs: yes
+  when:
+    - sslverify_value is defined
+    - sslverify_value != "not_set"
+    - sslverify_value
+
 #- name: "Check current python alternative"
 #  command: alternatives --display python
 #  register: python_alternatives

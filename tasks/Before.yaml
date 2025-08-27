@@ -1,0 +1,53 @@
+---
+# Before upgrade tasks file for ansible-role-elevate
+
+- name: "Set config_file variable (yum)"
+  set_fact:
+    config_file: "/etc/yum.conf"
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Set config_file variable (dnf)"
+  set_fact:
+    config_file: "/etc/dnf/dnf.conf"
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: "Read the contents of {{ config_file }}"
+  slurp:
+    src: "{{ config_file }}"
+  register: config_file
+
+- name: "Extract sslverify value (raw string, if present or not_set if missing)"
+  set_fact:
+    sslverify_value: >-
+      {{ (config_file.content | b64decode).splitlines()
+         | select('match', '^sslverify\s*=')
+         | map('regex_replace', '^sslverify\s*=\s*(.*)', '\1')
+         | map('lower')
+         | list
+         | first
+         | default('not_set') }}
+
+- name: "Disable sslverify in {{ config_file }}"
+  lineinfile:
+    path: "{{ config_file }}"
+    line: 'sslverify=0'
+    insertafter: '[main]'
+    state: present
+  when:
+    - sslverify_value is defined
+    - sslverify_value == "not_set"
+
+- name: "Disable sslverify if setting is present in {{ config_file }}"
+  lineinfile:
+    path: "{{ config_file }}"
+    regexp: '^sslverify='
+    line: 'sslverify=0'
+    insertafter: '[main]'
+    state: present
+    backrefs: yes
+  when:
+    - sslverify_value is defined
+    - sslverify_value != "not_set"
+    - sslverify_value
