@@ -1,17 +1,17 @@
 ---
 # Before upgrade tasks file for ansible-role-elevate
 
-- name: "Set config_file variable (yum)"
-  set_fact:
-    config_file: "/etc/yum.conf"
-  when:
-    - ansible_facts['pkg_mgr'] == 'yum'
+#- name: "Set config_file variable (yum)"
+#  set_fact:
+#    config_file: "/etc/yum.conf"
+#  when:
+#    - ansible_facts['pkg_mgr'] == 'yum'
 
 - name: "Set config_file variable (dnf)"
   set_fact:
     config_file: "/etc/dnf/dnf.conf"
-  when:
-    - ansible_facts['pkg_mgr'] == 'dnf'
+  #when:
+  #  - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Read the contents of {{ config_file }}"
   slurp:
