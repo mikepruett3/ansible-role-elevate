@@ -21,7 +21,7 @@
 - name: "Extract sslverify value (raw string, if present or not_set if missing)"
   set_fact:
     sslverify_raw: >-
-      {{ (dnf_conf_raw.content | b64decode).splitlines()
+      {{ (config_file_raw.content | b64decode).splitlines()
          | select('match', '^sslverify\s*=')
          | map('regex_replace', '^sslverify\s*=\s*(.*)', '\1')
          | list
