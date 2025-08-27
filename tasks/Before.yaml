@@ -20,14 +20,19 @@
 
 - name: "Extract sslverify value (raw string, if present or not_set if missing)"
   set_fact:
-    sslverify_value: >-
-      {{ (config_file_raw.content | b64decode).splitlines()
+    sslverify_raw: >-
+      {{ (dnf_conf_raw.content | b64decode).splitlines()
          | select('match', '^sslverify\s*=')
          | map('regex_replace', '^sslverify\s*=\s*(.*)', '\1')
-         | map('lower')
          | list
          | first
          | default('not_set') }}
+
+- name: "Normalize sslverify value (map booleans and numbers to true/false)"
+  set_fact:
+    sslverify_value: >-
+      {{ (sslverify_raw | lower) in ['1', 'true', 'yes'] | ternary('true',
+         ((sslverify_raw | lower) in ['0', 'false', 'no']) | ternary('false','not_set')) }}
 
 - name: "Disable sslverify in {{ config_file }}"
   lineinfile:
@@ -37,7 +42,7 @@
     state: present
   when:
     - sslverify_value is defined
-    - sslverify_value == "not_set"
+    - sslverify_raw == "not_set"
 
 - name: "Disable sslverify if setting is present in {{ config_file }}"
   lineinfile:
@@ -49,5 +54,4 @@
     backrefs: yes
   when:
     - sslverify_value is defined
-    - sslverify_value != "not_set"
     - sslverify_value

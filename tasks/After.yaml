@@ -38,7 +38,7 @@
     state: absent
   when:
     - sslverify_value is defined
-    - sslverify_value == "not_set"
+    - sslverify_raw == "not_set"
 
 - name: "Re-Enable sslverify if setting was present in {{ config_file }}"
   lineinfile:
@@ -49,7 +49,6 @@
     backrefs: yes
   when:
     - sslverify_value is defined
-    - sslverify_value != "not_set"
     - sslverify_value
 
 #- name: "Check current python alternative"
