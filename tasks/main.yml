@@ -7,6 +7,9 @@
 - name: "Import DiskSpace playbook"
   include_tasks: "Checks/DiskSpace.yaml"
 
+- name: "Import Before upgrade playbook"
+  include_tasks: "Before.yaml"
+
 - name: "Import Distribution Prerequisites"
   include_tasks: "Distro/{{ ansible_facts['distribution'] }}.yaml"
 
