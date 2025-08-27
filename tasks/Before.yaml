@@ -16,12 +16,12 @@
 - name: "Read the contents of {{ config_file }}"
   slurp:
     src: "{{ config_file }}"
-  register: config_file
+  register: config_file_raw
 
 - name: "Extract sslverify value (raw string, if present or not_set if missing)"
   set_fact:
     sslverify_value: >-
-      {{ (config_file.content | b64decode).splitlines()
+      {{ (config_file_raw.content | b64decode).splitlines()
          | select('match', '^sslverify\s*=')
          | map('regex_replace', '^sslverify\s*=\s*(.*)', '\1')
          | map('lower')
