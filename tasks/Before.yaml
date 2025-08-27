@@ -26,6 +26,7 @@
          | map('regex_replace', '^sslverify\s*=\s*(.*)', '\1')
          | map('lower')
          | list
+         | first
          | default('not_set') }}
 
 - name: "Disable sslverify in {{ config_file }}"
