@@ -33,7 +33,7 @@
   lineinfile:
     path: "{{ config_file }}"
     line: "sslverify=0"
-    insertafter: "[main]"
+    insertafter: '[main]'
     state: present
   when:
     - sslverify_value is defined
