@@ -38,7 +38,7 @@
   lineinfile:
     path: "{{ config_file }}"
     line: 'sslverify=0'
-    insertafter: '[main]'
+    insertafter: '^\[main\]'
     state: present
   when:
     - sslverify_value is defined
@@ -49,7 +49,7 @@
     path: "{{ config_file }}"
     regexp: '^sslverify='
     line: 'sslverify=0'
-    insertafter: '[main]'
+    insertafter: '^\[main\]'
     state: present
     backrefs: yes
   when:
