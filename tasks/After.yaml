@@ -45,7 +45,6 @@
     path: "{{ config_file }}"
     regexp: '^sslverify='
     line: 'sslverify=1'
-    insertafter: '[main]'
     state: present
     backrefs: yes
   when:
