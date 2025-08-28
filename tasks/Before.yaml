@@ -13,10 +13,19 @@
   #when:
   #  - ansible_facts['pkg_mgr'] == 'dnf'
 
+- name: "Check if {{ config_file }} exists"
+  stat:
+    path: "{{ config_file }}"
+  register: file
+  failed_when: false
+
 - name: "Read the contents of {{ config_file }}"
   slurp:
     src: "{{ config_file }}"
   register: config_file_raw
+  when:
+    - file is defined
+    - file.stat.exists
 
 - name: "Extract sslverify value (raw string, if present or not_set if missing)"
   set_fact:
@@ -27,12 +36,18 @@
          | list
          | first
          | default('not_set') }}
+  when:
+    - file is defined
+    - file.stat.exists
 
 - name: "Normalize sslverify value (map booleans and numbers to true/false)"
   set_fact:
     sslverify_value: >-
       {{ (sslverify_raw | lower) in ['1', 'true', 'yes'] | ternary('true',
          ((sslverify_raw | lower) in ['0', 'false', 'no']) | ternary('false','not_set')) }}
+  when:
+    - file is defined
+    - file.stat.exists
 
 - name: "Disable sslverify in {{ config_file }}"
   lineinfile:
