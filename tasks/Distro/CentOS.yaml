@@ -17,6 +17,8 @@
   vars:
     packages:
     - javapackages-tools
+    - cmake
+    - cmake3
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
@@ -27,5 +29,7 @@
   vars:
     packages:
     - javapackages-tools
+    - cmake
+    - cmake3
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
