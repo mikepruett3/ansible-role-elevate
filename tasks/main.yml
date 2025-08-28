@@ -1,6 +1,15 @@
 ---
 # tasks file for ansible-role-elevate
 
+#- name: "Display Current OS Version"
+#  debug:
+#    msg: "Current Operating System Version {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
+
+#- name: "Pause before continuing"
+#  pause:
+#    prompt: 'Please confirm you want to continue with the upgrade! Press return to continue. Press Ctrl+c and then "a" to abort'
+#    echo: no
+
 - name: "Import DNS playbook"
   include_tasks: "Checks/DNS.yaml"
 
@@ -139,6 +148,7 @@
 - name: "Build fix command list based on Pre-Upgrade recommendations"
   shell: cat /var/log/leapp/leapp-report.txt | grep -F [command] | awk '{$1= ""; print $0}'
   register: fix_commands
+  failed_when: fix_commands.stdout == ''
 
 - name: "Run gathered Pre-Upgrade fixes"
   shell: "{{ item }}"
