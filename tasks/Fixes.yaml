@@ -4,8 +4,9 @@
 # https://access.redhat.com/solutions/6971716
 - name: "Temporarily remove the pata_acpi kernel module"
   shell: rmmod pata_acpi
-  ignore_errors: true
-  #failed_when: false
+  #ignore_errors: true
+  register: rmmod
+  failed_when: '"is in use by:" in rmmod.stdout'
   #changed_when: false
   when:
     - ansible_facts['os_family'] == 'RedHat'
@@ -13,8 +14,9 @@
 
 # https://access.redhat.com/solutions/7020130
 - name: "Check for mounted btrfs filesystems in /proc/mounts"
-  command: cat /proc/mounts | grep -i btrfs
+  shell: cat /proc/mounts | grep -i btrfs
   register: btrfs_mounts_proc
+  #failed_when: '"" not in btrfs_mounts_proc'
   ignore_errors: yes
 
 - name: "Set fact for found btrfs filesystems in /proc/mounts"
