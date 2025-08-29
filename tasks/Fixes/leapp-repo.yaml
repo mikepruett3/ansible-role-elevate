@@ -1,5 +1,6 @@
 ---
 # leapp Repository tasks file for ansible-role-elevate
+# Fix derived from - https://forums.rockylinux.org/t/repositories-not-available/18305/5
 
 - name: "Comment out any mirrorlist entries in leapp_upgrade_repositories.repo file"
   replace:
