@@ -1,0 +1,10 @@
+---
+# rmod tasks file for ansible-role-elevate
+
+# https://access.redhat.com/solutions/6971716
+- name: "Temporarily remove the pata_acpi kernel module"
+  shell: rmmod pata_acpi
+  #ignore_errors: true
+  register: rmmod
+  failed_when: '"is in use by:" in rmmod.stdout'
+  #changed_when: false

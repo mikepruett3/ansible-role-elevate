@@ -1,0 +1,65 @@
+---
+# sslverify fix for yum.conf - tasks file for ansible-role-elevate
+# RHEL Article - https://access.redhat.com/solutions/7073762
+
+- name: "Set config_file variable (yum)"
+  set_fact:
+    config_file: "/etc/yum.conf"
+
+- name: "Check if {{ config_file }} exists"
+  stat:
+    path: "{{ config_file }}"
+  register: file
+  failed_when: false
+
+- name: "Read the contents of {{ config_file }}"
+  slurp:
+    src: "{{ config_file }}"
+  register: config_file_raw
+  when:
+    - file is defined
+    - file.stat.exists
+
+- name: "Extract sslverify value (raw string, if present or not_set if missing)"
+  set_fact:
+    sslverify_raw: >-
+      {{ (config_file_raw.content | b64decode).splitlines()
+         | select('match', '^sslverify\s*=')
+         | map('regex_replace', '^sslverify\s*=\s*(.*)', '\1')
+         | list
+         | first
+         | default('not_set') }}
+  when:
+    - file is defined
+    - file.stat.exists
+
+- name: "Normalize sslverify value (map booleans and numbers to true/false)"
+  set_fact:
+    sslverify_value: >-
+      {{ (sslverify_raw | lower) in ['1', 'true', 'yes'] | ternary('true',
+         ((sslverify_raw | lower) in ['0', 'false', 'no']) | ternary('false','not_set')) }}
+  when:
+    - file is defined
+    - file.stat.exists
+
+- name: "Disable sslverify in {{ config_file }}"
+  lineinfile:
+    path: "{{ config_file }}"
+    line: 'sslverify=0'
+    insertafter: '^\[main\]'
+    state: present
+  when:
+    - sslverify_value is defined
+    - sslverify_raw == "not_set"
+
+- name: "Disable sslverify if setting is present in {{ config_file }}"
+  lineinfile:
+    path: "{{ config_file }}"
+    regexp: '^sslverify='
+    line: 'sslverify=0'
+    insertafter: '^\[main\]'
+    state: present
+    backrefs: yes
+  when:
+    - sslverify_value is defined
+    - sslverify_value

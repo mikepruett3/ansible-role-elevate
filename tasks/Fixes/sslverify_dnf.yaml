@@ -1,17 +1,10 @@
 ---
-# Before upgrade tasks file for ansible-role-elevate
-
-#- name: "Set config_file variable (yum)"
-#  set_fact:
-#    config_file: "/etc/yum.conf"
-#  when:
-#    - ansible_facts['pkg_mgr'] == 'yum'
+# sslverify fix for dnf.conf - tasks file for ansible-role-elevate
+# RHEL Article - https://access.redhat.com/solutions/7073762
 
 - name: "Set config_file variable (dnf)"
   set_fact:
     config_file: "/etc/dnf/dnf.conf"
-  #when:
-  #  - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Check if {{ config_file }} exists"
   stat:

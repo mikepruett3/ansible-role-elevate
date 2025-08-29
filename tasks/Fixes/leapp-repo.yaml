@@ -1,0 +1,14 @@
+---
+# leapp Repository tasks file for ansible-role-elevate
+
+- name: "Comment out any mirrorlist entries in leapp_upgrade_repositories.repo file"
+  replace:
+    path: /etc/leapp/files/leapp_upgrade_repositories.repo
+    regexp: '^(?!#)(\s*mirrorlist=.*)$'
+    replace: '#\1'
+
+- name: "Uncomment baseurl entries in leapp_upgrade_repositories.repo file"
+  replace:
+    path: /etc/leapp/files/leapp_upgrade_repositories.repo
+    regexp: '^\s*#\s*(baseurl=.*)$'
+    replace: '\1'

@@ -16,8 +16,15 @@
 - name: "Import DiskSpace playbook"
   include_tasks: "Checks/DiskSpace.yaml"
 
-- name: "Import Before upgrade playbook"
-  include_tasks: "Before.yaml"
+- name: "Import sslverify_yum playbook"
+  include_tasks: "Fixes/sslverify_yum.yaml"
+  when:
+    - ansible_distribution_major_version == '7'
+
+- name: "Import sslverify_dnf playbook"
+  include_tasks: "Fixes/sslverify_dnf.yaml"
+  when:
+    - ansible_distribution_major_version == '8'
 
 - name: "Import Distribution Prerequisites"
   include_tasks: "Distro/{{ ansible_facts['distribution'] }}.yaml"
@@ -120,18 +127,27 @@
     - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Import PermitRootLogin playbook"
-  include_tasks: "PermitRootLogin.yaml"
+  include_tasks: "Fixes/PermitRootLogin.yaml"
   when:
     - ansible_facts['os_family'] == 'RedHat'
     - ansible_distribution_major_version == '7'
 
 - name: "Import AllowZoneDrifting playbook"
-  include_tasks: "AllowZoneDrifting.yaml"
+  include_tasks: "Fixes/AllowZoneDrifting.yaml"
   when:
     - ansible_distribution_major_version == '8'
 
-- name: "Import Distribution Fixes"
-  include_tasks: "Fixes.yaml"
+- name: "Import leapp-repo playbook"
+  include_tasks: "Fixes/leapp-repo.yaml"
+
+- name: "Import rmod playbook"
+  include_tasks: "Fixes/rmod.yaml"
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - ansible_distribution_major_version == '7'
+
+- name: "Import btrfs playbook"
+  include_tasks: "btrfs.yaml"
 
 - name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
@@ -304,9 +320,9 @@
 - name: "Get Facts after upgrade"
   gather_facts:
 
-#- name: Display before and after versions
-#  ansible.builtin.debug:
-#    msg: "Version before {{ existing_distribution }} {{ existing_version }}.  Version after {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
+- name: Display before and after versions
+  debug:
+    msg: "Version before {{ existing_distribution }} {{ existing_version }}.  Version after {{ ansible_facts['distribution'] }} {{ ansible_distribution_version }}."
 
 - name: "Reboot after playbook run"
   reboot:
