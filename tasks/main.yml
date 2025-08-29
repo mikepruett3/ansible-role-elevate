@@ -147,7 +147,7 @@
     - ansible_distribution_major_version == '7'
 
 - name: "Import btrfs playbook"
-  include_tasks: "btrfs.yaml"
+  include_tasks: "Fixes/btrfs.yaml"
 
 - name: "Run a Pre-Upgrade check"
   shell: leapp preupgrade
