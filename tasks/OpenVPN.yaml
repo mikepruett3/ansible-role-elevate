@@ -74,16 +74,16 @@
     - existing_major_version == '8'
 
 # Fix from - https://www.reddit.com/r/PrivateInternetAccess/comments/j1iyl7/openvpn_client_no_longer_connects_cipher_not/
-- name: "Add a Data Cipher to the OpenVPN config"
-  lineinfile:
-    path: /etc/openvpn/client/client.conf
-    line: data-ciphers AES-256-CBC
-    insertafter: EOF
-    state: present
-  when:
-    - openvpn_installed
-    - new_version is version(openvpn_version, '>=')
-    - existing_major_version == '8'
+#- name: "Add a Data Cipher to the OpenVPN config"
+#  lineinfile:
+#    path: /etc/openvpn/client/client.conf
+#    line: data-ciphers AES-256-CBC
+#    insertafter: EOF
+#    state: present
+#  when:
+#    - openvpn_installed
+#    - new_version is version(openvpn_version, '>=')
+#    - existing_major_version == '8'
 
 - name: "Create an archive of the OpenVPN configuration files to the root home directory"
   archive:
