@@ -84,16 +84,29 @@
     - upgrade.changed
     - ansible_distribution_major_version != '8'
 
+- name: "Download the ELevate release package"
+  get_url:
+    url: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+    dest: "/tmp/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+    mode: '0755'
+  delegate_to: 127.0.0.1
+
+- name: "Copy the ELevate release package to {{ inventory_hostname }}"
+  copy:
+    src: "/tmp/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+    dest: "/tmp/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+    mode: '0755'
+
 - name: "Install the ELevate release package (yum)"
   yum:
-    name: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+    name: "/tmp/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
     state: present
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
 - name: "Install the ELevate release package (dnf)"
   dnf:
-    name: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+    name: "/tmp/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
     state: present
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
