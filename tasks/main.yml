@@ -139,6 +139,9 @@
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
+- name: "Import RemoveSHA1Packages playbook"
+  include_tasks: "Fixes/RemoveSHA1Packages.yaml"
+
 - name: "Import PermitRootLogin playbook"
   include_tasks: "Fixes/PermitRootLogin.yaml"
   when:
@@ -318,6 +321,13 @@
     state: present
   ignore_errors: true
   loop: "{{ reinstall }}"
+
+- name: "Install newer SHA-1 signed packages that were previously removed"
+  dnf:
+    name: "{{ item }}"
+    state: present
+  ignore_errors: true
+  loop: "{{ sha1_packages }}"
 
 - name: "Cleanup remaining leapp_resume Service"
   service:

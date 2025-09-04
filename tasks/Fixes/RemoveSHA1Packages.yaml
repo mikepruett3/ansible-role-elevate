@@ -1,0 +1,39 @@
+---
+# Remove SHA-1 Packages tasks file for ansible-role-elevate
+
+- name: "Get list of installed RPMs with their signatures"
+  shell: rpm -qa --qf '%{NAME} %{SIGPGP:pgpsig}\n' | egrep 'SHA1' | awk '{print $1}'
+  args:
+    warn: false
+  failed_when: false
+  register: rpm_output
+
+- name: "Extract packages signed with SHA-1 (excluding kernels)"
+  set_fact:
+    sha1_packages: >-
+      {{
+        rpm_output.stdout_lines
+        | reject('search', '^kernel')
+        | list
+      }}
+  when:
+    rpm_output is defined
+    rpm_output.stdout != ""
+
+- name: "Remove SHA-1 signed packages (yum)"
+  yum:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ sha1_packages }}"
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+    - sha1_packages | length > 0
+
+- name: "Remove SHA-1 signed packages (dnf)"
+  dnf:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ sha1_packages }}"
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+    - sha1_packages | length > 0
