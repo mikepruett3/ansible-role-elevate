@@ -328,6 +328,9 @@
     state: present
   ignore_errors: true
   loop: "{{ sha1_packages }}"
+  when:
+    - sha1_packages is defined
+    - sha1_packages | length > 0
 
 - name: "Cleanup remaining leapp_resume Service"
   service:

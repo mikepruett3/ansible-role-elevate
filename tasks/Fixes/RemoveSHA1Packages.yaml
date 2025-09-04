@@ -28,6 +28,7 @@
   loop: "{{ sha1_packages }}"
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
+    - sha1_packages is defined
     - sha1_packages | length > 0
 
 - name: "Remove SHA-1 signed packages (dnf)"
@@ -37,4 +38,5 @@
   loop: "{{ sha1_packages }}"
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
+    - sha1_packages is defined
     - sha1_packages | length > 0
