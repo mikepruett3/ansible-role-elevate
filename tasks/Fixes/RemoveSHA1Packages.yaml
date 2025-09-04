@@ -17,8 +17,8 @@
         | list
       }}
   when:
-    rpm_output is defined
-    rpm_output.stdout != ""
+    - rpm_output is defined
+    - rpm_output.stdout != ""
 
 - name: "Remove SHA-1 signed packages (yum)"
   yum:
