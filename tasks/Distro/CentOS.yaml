@@ -10,6 +10,15 @@
   when:
     - ansible_distribution_major_version == '7'
 
+# https://access.redhat.com/solutions/4824431
+- name: "Ensure that all plugins are disabled in rhnplugin.conf"
+  replace:
+    path: /etc/yum/pluginconf.d/rhnplugin.conf
+    regexp: '^enabled(.+)'
+    replace: 'enabled=0'
+  when:
+    - ansible_distribution_major_version == '7'
+
 - name: "Remove packages that will cause issues during Distribution upgrade (yum)"
   yum:
     name: "{{ packages }}"
