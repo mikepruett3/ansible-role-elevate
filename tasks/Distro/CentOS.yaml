@@ -1,9 +1,20 @@
 ---
 # CentOS tasks file for ansible-role-elevate
 
-- name: "Swap the CentOS 7 Base repo to the AlmaLinux ELevate repo"
+- name: "Download the CentOS 7 Base repo file from the AlmaLinux ELevate repo"
   get_url:
     url: https://el7.repo.almalinux.org/centos/CentOS-Base.repo
+    #dest: /etc/yum.repos.d/CentOS-Base.repo
+    dest: /tmp/CentOS-Base.repo
+    mode: '0644'
+    #backup: true
+  delegate_to: 127.0.0.1
+  when:
+    - ansible_distribution_major_version == '7'
+
+- name: "Swap the CentOS 7 Base repo to the AlmaLinux ELevate repo"
+  copy:
+    src: /tmp/CentOS-Base.repo
     dest: /etc/yum.repos.d/CentOS-Base.repo
     mode: '0644'
     backup: true
