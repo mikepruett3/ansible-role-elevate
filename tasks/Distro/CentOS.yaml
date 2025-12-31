@@ -53,3 +53,10 @@
     - cmake3
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: "Set the TargetReleaseVersion for CentOS 7"
+  set_fact:
+    TargetReleaseVersion: "8"
+  when:
+    - ansible_distribution_major_version == '7'
+    - TargetReleaseVersion is not defined

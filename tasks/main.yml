@@ -166,7 +166,7 @@
   include_tasks: "Fixes/btrfs.yaml"
 
 - name: "Run a Pre-Upgrade check"
-  shell: leapp preupgrade
+  shell: leapp preupgrade --target {{ TargetReleaseVersion }}
   register: preupgrade
   failed_when: '"END OF REPORT" not in preupgrade.stdout'
   #no_log: true
@@ -194,7 +194,7 @@
     echo: no
 
 - name: "Perform the upgrade"
-  shell: leapp upgrade
+  shell: leapp upgrade --target {{ TargetReleaseVersion }}
   register: upgrade
   failed_when: '"Upgrade has been inhibited due to the following problems" in upgrade.stdout'
   #no_log: true
