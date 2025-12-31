@@ -35,7 +35,7 @@
     state: absent
 
 - name: "Stop auditd service"
-  shell: systemctl stop auditd
+  shell: service auditd stop
   args:
     warn: false
 
