@@ -35,9 +35,9 @@
     state: absent
 
 - name: "Stop auditd service"
-  service:
-    name: auditd
-    state: stopped
+  shell: systemctl stop auditd
+  args:
+    warn: false
 
 - name: "Distro-sync to Rocky Linux 9"
   command: >
