@@ -54,11 +54,11 @@
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
-- name: "Reboot if packages were upgraded (yum)"
-  reboot:
-    reboot_timeout: 14400
-  when:
-    - upgrade.changed
+#- name: "Reboot if packages were upgraded (yum)"
+#  reboot:
+#    reboot_timeout: 14400
+#  when:
+#    - upgrade.changed
 
 - name: "Upgrade the system (dnf)"
   dnf:
@@ -68,12 +68,12 @@
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
-- name: "Reboot if packages were upgraded (dnf)"
+- name: "Reboot if packages were upgraded"
   reboot:
     reboot_timeout: 14400
   when:
     - upgrade.changed
-    - ansible_distribution_major_version != '8'
+    #- ansible_distribution_major_version != '8'
 
 - name: "Download the ELevate release package"
   get_url:
@@ -81,12 +81,16 @@
     dest: "/tmp/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
     mode: '0755'
   delegate_to: 127.0.0.1
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Copy the ELevate release package to {{ inventory_hostname }}"
   copy:
     src: "/tmp/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
     dest: "/tmp/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
     mode: '0755'
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Install the ELevate release package (yum)"
   yum:
@@ -101,34 +105,26 @@
     state: present
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
+    - ansible_facts['distribution'] != 'Rocky'
 
-- name: "Install the leapp upgrade package (yum)"
+- name: "Install the leapp upgrade packages (yum)"
   yum:
-    name: leapp-upgrade
+    name:
+      - leapp-upgrade
+      - leapp-data-{{ distro }}
     state: present
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
-- name: "Install the leapp upgrade package (dnf)"
+- name: "Install the leapp upgrade packages (dnf)"
   dnf:
-    name: leapp-upgrade
+    name:
+      - leapp-upgrade
+      - leapp-data-{{ distro }}
     state: present
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
-
-- name: "Install the leapp data package for the specified upgrade distro (yum)"
-  yum:
-    name: "leapp-data-{{ distro }}"
-    state: present
-  when:
-    - ansible_facts['pkg_mgr'] == 'yum'
-
-- name: "Install the leapp data package for the specified upgrade distro (dnf)"
-  dnf:
-    name: "leapp-data-{{ distro }}"
-    state: present
-  when:
-    - ansible_facts['pkg_mgr'] == 'dnf'
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Import RemoveSHA1Packages playbook"
   include_tasks: "Fixes/RemoveSHA1Packages.yaml"
@@ -146,6 +142,8 @@
 
 - name: "Import leapp-repo playbook"
   include_tasks: "Fixes/leapp-repo.yaml"
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Import rmod playbook"
   include_tasks: "Fixes/rmod.yaml"
@@ -161,23 +159,31 @@
   register: preupgrade
   failed_when: '"END OF REPORT" not in preupgrade.stdout'
   #no_log: true
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Check if leapp-report.txt exists"
   stat:
     path: /var/log/leapp/leapp-report.txt
   register: file_status
   failed_when: not file_status.stat.exists or file_status.stat.size == 0
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Build fix command list based on Pre-Upgrade recommendations"
   shell: cat /var/log/leapp/leapp-report.txt | grep -F [command] | awk '{$1= ""; print $0}'
   register: fix_commands
   failed_when: fix_commands.stdout == ''
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Run gathered Pre-Upgrade fixes"
   shell: "{{ item }}"
   #args:
   #  warn: false
   loop: "{{ fix_commands.stdout_lines }}"
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Pause before performing the upgrade"
   pause:
@@ -189,20 +195,31 @@
   register: upgrade
   failed_when: '"Upgrade has been inhibited due to the following problems" in upgrade.stdout'
   #no_log: true
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Check if upgrade was successful"
   shell: grubby --default-title
   register: grubby
   failed_when: '"ELevate-Upgrade-Initramfs" not in grubby.stdout'
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Import OpenVPN playbook"
   include_tasks: "OpenVPN.yaml"
+
+- name: "Perform the upgrade for Rocky Linux"
+  include_tasks: "New-Upgrade.yaml"
+  #register: upgrade
+  when:
+    - ansible_facts['distribution'] == 'Rocky'
 
 - name: "Reboot after the upgrade"
   reboot:
     reboot_timeout: 14400
   when:
     - upgrade.changed
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Set fact for the new python interpreter"
   set_fact:
@@ -226,6 +243,15 @@
   when:
     - actual_os_major_version == existing_major_version
 
+- name: "Check if OpenVPN client Service exists"
+  shell: systemctl status openvpn-client@client
+  register: openvpn_service
+  failed_when: false
+  changed_when: false
+  when:
+    - existing_major_version == '7'
+    - actual_os_major_version != existing_major_version
+
 - name: "Cleanup legacy OpenVPN client Service"
   service:
     name: openvpn@client
@@ -233,6 +259,8 @@
     #state: stopped
   ignore_errors: true
   when:
+    - openvpn_service is defined
+    - openvpn_service.rc == 0
     - existing_major_version == '7'
     - actual_os_major_version != existing_major_version
 
@@ -261,10 +289,14 @@
   args:
     warn: false
   register: packages
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Set fact for list of Legacy packages to remove"
   set_fact:
     packages: "{{ packages.stdout_lines }}"
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Collect a list of packages to reinstall after"
   shell: |
@@ -282,10 +314,14 @@
   args:
     warn: false
   register: reinstall
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Set fact for list of packages to reinstall after"
   set_fact:
     reinstall: "{{ reinstall.stdout_lines }}"
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Remove Legacy packages after upgrade"
   dnf:
@@ -293,12 +329,16 @@
     state: absent
   ignore_errors: true
   loop: "{{ packages }}"
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Remove Legacy Kernel packages after upgrade"
   dnf:
     name: "kernel*el{{ existing_major_version }}*"
     state: absent
   ignore_errors: true
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Remove bootloader entries for Legacy kernels"
   shell: find /boot/loader/entries/ -type f -name "*-{{ existing_kernel_major_version }}.*" -delete
@@ -312,6 +352,8 @@
     state: present
   ignore_errors: true
   loop: "{{ reinstall }}"
+  when:
+    - ansible_facts['distribution'] != 'Rocky'
 
 - name: "Install newer SHA-1 signed packages that were previously removed"
   dnf:
@@ -344,3 +386,5 @@
 - name: "Reboot after playbook run"
   reboot:
     reboot_timeout: 14400
+  when:
+    - ansible_distribution_major_version == '9'
