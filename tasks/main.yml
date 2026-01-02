@@ -259,8 +259,7 @@
     #state: stopped
   ignore_errors: true
   when:
-    - openvpn_service is defined
-    - openvpn_service.rc == 0
+    - openvpn_service is defined and openvpn_service.rc == 0
     - existing_major_version == '7'
     - actual_os_major_version != existing_major_version
 
@@ -268,6 +267,7 @@
   reboot:
     reboot_timeout: 14400
   when:
+    - openvpn_service is defined and openvpn_service.rc == 0
     - existing_major_version == '7'
     - actual_os_major_version != existing_major_version
 
