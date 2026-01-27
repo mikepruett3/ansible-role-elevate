@@ -255,6 +255,7 @@
   set_fact:
     openvpn_service_exists: true
   when:
+    - existing_major_version == '7'
     - openvpn_service is defined
       and openvpn_service.rc == 0
 
@@ -265,6 +266,7 @@
     #state: stopped
   ignore_errors: true
   when:
+    - existing_major_version == '7'
     - openvpn_service_exists is defined
       and openvpn_service_exists
 
