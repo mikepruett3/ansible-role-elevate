@@ -54,12 +54,6 @@
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
-#- name: "Reboot if packages were upgraded (yum)"
-#  reboot:
-#    reboot_timeout: 14400
-#  when:
-#    - upgrade.changed
-
 - name: "Upgrade the system (dnf)"
   dnf:
     name: '*'
@@ -68,12 +62,30 @@
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
+- name: "Collect current running kernel version"
+  shell: uname -r
+  register: current_kernel
+  changed_when: false
+
+- name: "Set fact for current running kernel version"
+  set_fact:
+    current_kernel: "{{ current_kernel.stdout }}"
+
+- name: "Collect kernel version from grubby"
+  shell: grubby --default-kernel | cut -f2-3 -d'-'
+  register: grubby_kernel
+  changed_when: false
+
+- name: "Set fact for kernel version from grubby"
+  set_fact:
+    grubby_kernel: "{{ grubby_kernel.stdout }}"
+
 - name: "Reboot if packages were upgraded"
   reboot:
     reboot_timeout: 14400
   when:
     - upgrade.changed
-    #- ansible_distribution_major_version != '8'
+    - current_kernel != grubby_kernel
 
 - name: "Download the ELevate release package"
   get_url:
