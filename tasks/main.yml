@@ -250,15 +250,13 @@
   changed_when: false
   when:
     - existing_major_version == '7'
-    #- actual_os_major_version != existing_major_version
 
 - name: "Set fact if OpenVPN client Service exists"
   set_fact:
     openvpn_service_exists: true
   when:
-    - openvpn_service is defined and openvpn_service.rc == 0
-    #- existing_major_version == '7'
-    #- actual_os_major_version != existing_major_version
+    - openvpn_service is defined
+      and openvpn_service.rc == 0
 
 - name: "Cleanup legacy OpenVPN client Service"
   service:
@@ -267,14 +265,15 @@
     #state: stopped
   ignore_errors: true
   when:
-    - openvpn_service_exists is defined and openvpn_service_exists
+    - openvpn_service_exists is defined
+      and openvpn_service_exists
 
 - name: "Reboot after cleanup of OpenVPN configs"
   reboot:
     reboot_timeout: 14400
   when:
     - openvpn_service_exists is defined
-    - openvpn_service_exists
+      and openvpn_service_exists
 
 - name: "Remove exclusion from dnf configuration file"
   lineinfile:
