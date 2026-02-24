@@ -4,13 +4,13 @@
 - name: "Remove unneeded packages"
   dnf:
     name:
-      - "leapp*"
       - elevate-release
       - epel-release
       - rpmconf
       - yum-utils
       - iptables-ebtables
       - make-devel
+      - "leapp*"
     state: absent
   failed_when: false
 
