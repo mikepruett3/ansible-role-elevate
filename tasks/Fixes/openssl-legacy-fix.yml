@@ -13,7 +13,7 @@
 
 - name: "Create a OpenSSL Legacy configuration file, if it does not exist"
   template:
-    src: openvpn/openssl-legacy.cnf.j2
+    src: openssl-legacy.cnf.j2
     dest: "{{ openssl_legacy_cnf }}"
     mode: '0640'
   when: not file.stat.exists or not file.stat.isfile
@@ -26,7 +26,7 @@
 
 - name: "Update the systemd OpenVPN service file to use the OpenSSL Legacy configuration file"
   template:
-    src: openvpn/systemd-override.conf.j2
+    src: systemd-override.conf.j2
     dest: /etc/systemd/system/openvpn-client@client.service.d/override.conf
     mode: '0640'
   notify: "Reload systemd"
