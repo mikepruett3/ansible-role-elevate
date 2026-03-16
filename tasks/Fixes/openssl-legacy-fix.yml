@@ -5,18 +5,27 @@
 - name: "Set Playbook facts"
   set_fact:
     openssl_legacy_cnf: "/etc/pki/tls/openssl-legacy.cnf"
+    override_conf: false
 
 - name: "Check for the existence of a OpenSSL Legacy configuration file"
   stat:
     path: "{{ openssl_legacy_cnf }}"
   register: file
 
+- name: "Set fact for whether the OpenSSL Legacy configuration file exists and is a file"
+  set_fact:
+    override_conf: true
+  when:
+    - file is defined
+    - file.stat.exists
+    - file.stat.isfile
+
 - name: "Create a OpenSSL Legacy configuration file, if it does not exist"
   template:
     src: openssl-legacy.cnf.j2
     dest: "{{ openssl_legacy_cnf }}"
     mode: '0640'
-  when: not file.stat.exists or not file.stat.isfile
+  when: not override_conf | bool
 
 - name: "Create a systemd override directory for the OpenVPN service, if it does not exist"
   file:
