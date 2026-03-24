@@ -1,0 +1,42 @@
+---
+# OpenSSL Legacy tasks file for ansible-role-elevate
+# Fix found from https://oneuptime.com/blog/post/2026-03-04-configure-openssl-3-cryptographic-settings-rhel-9/view#enabling-legacy-provider-per-application
+
+- name: "Set Playbook facts"
+  set_fact:
+    openssl_legacy_cnf: "/etc/pki/tls/openssl-legacy.cnf"
+    override_conf: false
+
+- name: "Check for the existence of a OpenSSL Legacy configuration file"
+  stat:
+    path: "{{ openssl_legacy_cnf }}"
+  register: file
+
+- name: "Set fact for whether the OpenSSL Legacy configuration file exists and is a file"
+  set_fact:
+    override_conf: true
+  when:
+    - file is defined
+    - file.stat.exists
+    - file.stat.isfile
+
+- name: "Create a OpenSSL Legacy configuration file, if it does not exist"
+  template:
+    src: openssl-legacy.cnf.j2
+    dest: "{{ openssl_legacy_cnf }}"
+    mode: '0640'
+  when: not override_conf | bool
+
+- name: "Create a systemd override directory for the OpenVPN service, if it does not exist"
+  file:
+    path: /etc/systemd/system/openvpn-client@client.service.d
+    state: directory
+    mode: '0755'
+
+- name: "Update the systemd OpenVPN service file to use the OpenSSL Legacy configuration file"
+  template:
+    src: systemd-override.conf.j2
+    dest: /etc/systemd/system/openvpn-client@client.service.d/override.conf
+    mode: '0640'
+  notify: "Reload systemd"
+

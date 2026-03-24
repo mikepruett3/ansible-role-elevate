@@ -1,16 +1,6 @@
 ---
 # Rocky Linux tasks file for ansible-role-elevate
 
-#- name: "Set a fact for a filtered list of interfaces"
-#  set_fact:
-#    filtered_interfaces: >-
-#      {{
-#        ansible_interfaces
-#        | reject('match', '^lo$')
-#        | reject('match', '^tun*')
-#        | list
-#      }}
-
 - name: "Check for the existence of Legacy Interface files in /etc/sysconfig/network-scripts"
   find:
     path: /etc/sysconfig/network-scripts
@@ -23,7 +13,6 @@
 # Fix from - https://access.redhat.com/solutions/7009239
 - name: "Convert network-scripts to NetworkManager format"
   shell: nmcli connection migrate "{{ item.path }}"
-  #with_items: "{{ filtered_interfaces }}"
   loop: "{{ legacy_interfaces.files }}"
   ignore_errors: true
   when:
@@ -38,20 +27,16 @@
     - legacy_interfaces.matched != '0'
     - ansible_distribution_major_version == '8'
 
-#- name: "Copy OpenVPN configs to /etc/openvpn/client directory"
-#  copy:
-#    src: /etc/openvpn/
-#    dest: /etc/openvpn/client/
-#    remote_src: true
-#  when:
-#    - ansible_distribution_major_version == '8'
+- name: "Set the TargetReleaseVersion for Rocky Linux 7"
+  set_fact:
+    TargetReleaseVersion: "8"
+  when:
+    - ansible_distribution_major_version == '7'
+    - TargetReleaseVersion is not defined
 
-#- name: "Cleanup OpenVPN config directories"
-#  file:
-#    path: "{{ item }}"
-#    state: absent
-#  loop:
-#    - /etc/openvpn/client/client
-#    - /etc/openvpn/client/server
-#  when:
-#    - ansible_distribution_major_version == '8'
+- name: "Set the TargetReleaseVersion for Rocky Linux 8"
+  set_fact:
+    TargetReleaseVersion: "9.5"
+  when:
+    - ansible_distribution_major_version == '8'
+    - TargetReleaseVersion is not defined
