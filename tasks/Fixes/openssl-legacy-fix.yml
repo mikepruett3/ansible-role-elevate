@@ -18,7 +18,7 @@
   when:
     - file is defined
     - file.stat.exists
-    - file.stat.isfile
+    - file.stat.isreg
 
 - name: "Create a OpenSSL Legacy configuration file, if it does not exist"
   template:
