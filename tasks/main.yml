@@ -50,7 +50,7 @@
   yum:
     name: '*'
     state: latest
-  register: upgrade
+  register: yum_upgrade
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
@@ -58,33 +58,32 @@
   dnf:
     name: '*'
     state: latest
-  register: upgrade
+  register: dnf_upgrade
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Collect current running kernel version"
   shell: uname -r
-  register: current_kernel
+  register: current_kernel_result
   changed_when: false
 
 - name: "Set fact for current running kernel version"
   set_fact:
-    current_kernel: "{{ current_kernel.stdout }}"
+    current_kernel: "{{ current_kernel_result.stdout | trim }}"
 
 - name: "Collect kernel version from grubby"
   shell: grubby --default-kernel | cut -f2-3 -d'-'
-  register: grubby_kernel
+  register: grubby_kernel_result
   changed_when: false
 
 - name: "Set fact for kernel version from grubby"
   set_fact:
-    grubby_kernel: "{{ grubby_kernel.stdout }}"
+    grubby_kernel: "{{ grubby_kernel_result.stdout | trim }}"
 
-- name: "Reboot if packages were upgraded"
+- name: "Reboot if default kernel differs from running kernel"
   reboot:
     reboot_timeout: 14400
   when:
-    - upgrade.changed
     - current_kernel != grubby_kernel
 
 - name: "Download the ELevate release package"
@@ -230,8 +229,8 @@
   reboot:
     reboot_timeout: 14400
   when:
-    - upgrade.changed
     - ansible_facts['distribution'] != 'Rocky'
+    - upgrade is defined and upgrade.changed | default(false)
 
 - name: "Set fact for the new python interpreter"
   set_fact:
