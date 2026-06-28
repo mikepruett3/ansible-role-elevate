@@ -17,9 +17,9 @@
 - name: "Set fact to indicate Rocky Linux upgrade"
   set_fact:
     repo_url: "https://download.rockylinux.org/pub/rocky/9/BaseOS/x86_64/os/Packages/r"
-    rocky_release_pkg: "rocky-release-9.7-1.3.el9.noarch.rpm"
-    rocky_repos_pkg: "rocky-repos-9.7-1.3.el9.noarch.rpm"
-    rocky_gpg_pkg: "rocky-gpg-keys-9.7-1.3.el9.noarch.rpm"
+    rocky_release_pkg: "rocky-release-9.8-1.1.el9.noarch.rpm"
+    rocky_repos_pkg: "rocky-repos-9.8-1.1.el9.noarch.rpm"
+    rocky_gpg_pkg: "rocky-gpg-keys-9.8-1.1.el9.noarch.rpm"
 
 - name: "Install Rocky Linux 9.7 release, repos, and GPG keys"
   dnf:
